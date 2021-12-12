@@ -24,6 +24,7 @@ public class Genotype {
 
     public Genotype (int[] genes) {
         // check if there are 32 genes
+
         if (genes.length != GENES_LENGTH) throw new IllegalArgumentException("Invalid genes array: length is not 32");
 
         // check if all the genes are between 0 and 7

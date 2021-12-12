@@ -14,17 +14,19 @@ public enum MapDirection {
 
     public static MapDirection getRandomDirection() {
         // returns random MapDirection
+
         MapDirection[] directionList = MapDirection.values();
         int rnd = new Random().nextInt(directionList.length);
         return directionList[rnd];
     }
 
-    public MapDirection next() {
-        // returns next MapDirection clockwise
+    public MapDirection next(int turns) {
+        // returns MapDirection after turning "turns" times clockwise
+
         MapDirection[] directionList = MapDirection.values();
 
         for (int i = 0; i< directionList.length; i++) {
-            if (directionList[i] == this) return directionList[(i+1)%directionList.length];
+            if (directionList[i] == this) return directionList[(i+turns)%directionList.length];
         }
         // this will never occur but intellij throws an error without this return, TODO how to make it nicer
         return null;
@@ -32,6 +34,7 @@ public enum MapDirection {
 
     public Vector2d getDirectionVector() {
         // returns Vector2d corresponding to current direction
+
         return switch(this) {
             case NORTH -> new Vector2d(0, 1);
             case NORTH_EAST -> new Vector2d(1, 1);
