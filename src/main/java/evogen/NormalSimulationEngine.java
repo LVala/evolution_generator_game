@@ -74,6 +74,7 @@ public class NormalSimulationEngine implements IEngine{
             eatPlants(foldedMap);
             reproduceAnimals(foldedMap);
             foldedMap.placePlants();
+            //TODO inform gui that map changed
         }
 
     }

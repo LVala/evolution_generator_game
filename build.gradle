@@ -4,6 +4,11 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.10'
 }
 
+apply plugin : "java"
+ext {
+    javaMainClass = "gui.Main"
+}
+
 group 'org.example'
 version '1.0-SNAPSHOT'
 
@@ -26,5 +31,5 @@ test {
 }
 
 application {
-    mainClassName = 'evolutionGenerator.World'
+    mainClassName = javaMainClass
 }
