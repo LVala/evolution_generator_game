@@ -1,6 +1,7 @@
 package gui;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,6 +14,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.awt.event.ActionEvent;
 
 public class SettingsStage extends Application {
 
@@ -27,7 +30,7 @@ public class SettingsStage extends Application {
 
         // SCENE TITLE
 
-        Text sceneTitle = new Text("Welcome to Evolution Generator!\nEnter simulation parameters:");
+        Text sceneTitle = new Text("Welcome to the Evolution Generator!\nEnter simulation parameters:");
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(sceneTitle, 0, 0, 2, 1);
 
@@ -83,13 +86,37 @@ public class SettingsStage extends Application {
         Button btn = new Button("Start the simulation");
         btn.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
         btn.setPrefSize(250,60);
+        btn.setOnAction(new EventHandler<>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") && validate(startEnergyTextField, "[0-9]+") &&
+                        validate(moveEnergyTextField, "[0-9]+") && validate(plantEnergyTextField, "[0-9]+") &&
+                        validate(jungleRatioTextField, "[0-9][0-9]?|100") && validate(initialAnimalsTextField, "[0-9]+")) {
+                    //TODO start simulation
+                    App.main(new String[] {"a"});
+                }
+            }
+        });
+
         HBox hbBtn = new HBox(20);
         hbBtn.setAlignment(Pos.CENTER);
         hbBtn.getChildren().add(btn);
         grid.add(hbBtn, 0, 9, 2, 1);
-        //TODO button set on action start simulation
 
         return grid;
+    }
+
+    public boolean validate(TextField textField, String regex) {
+
+        if (!textField.getText().matches(regex)){
+            textField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+            textField.setText("invalid input");
+            return false;
+        }
+        else {
+            textField.setStyle(null);
+            return true;
+        }
     }
 
     public  void start(Stage primaryStage) {

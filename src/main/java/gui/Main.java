@@ -7,6 +7,6 @@ public class Main {
     // covered on https://github.com/javafxports/openjdk-jfx/issues/236
 
     public static void main(String[] args) {
-        SettingsStage.main(args);
+        App.main(args);
     }
 }
