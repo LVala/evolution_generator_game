@@ -1,86 +1,38 @@
 package gui;
 
+import evogen.*;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.Chart;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class App extends Application {
+public class App{
 
-    public XYChart.Series createSeries(int era, List<Integer> data) {
-        XYChart.Series series = new XYChart.Series();
-
-        for (int i = 0; i < era; i++) {
-            series.getData().add(new XYChart.Data(i+1, data.get(i)));
-        }
-
-        return series;
-    }
-
-    public LineChart<Number, Number> createChart(int era, List<Integer> animals, List<Integer> plants, List<Integer> energy,
-                                                 List<Integer> lifespan, List<Integer> children) {
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Era");
-        LineChart<Number, Number> lineChart = new LineChart<Number, Number>(xAxis, yAxis);
-
-        XYChart.Series series1 = createSeries(era, animals);
-        series1.setName("Number of animals");
-
-        XYChart.Series series2 = createSeries(era, plants);
-        series2.setName("Number of plants");
-
-        XYChart.Series series3 = createSeries(era, energy);
-        series3.setName("Average energy");
-
-        XYChart.Series series4 = createSeries(era, lifespan);
-        series4.setName("Average lifespan");
-
-        XYChart.Series series5 = createSeries(era, children);
-        series5.setName("Average number of children");
-
-        lineChart.getData().addAll(series1, series2, series3, series4, series5);
-        lineChart.setCreateSymbols(false);
-
-        return lineChart;
-    }
-
-    public GridPane createInterfaceGrid() {
+    public GridPane createInterfaceGrid(int era, List<Integer> animals, List<Integer> plants, List<Integer> energy,
+                                        List<Integer> lifespan, List<Integer> children) {
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_CENTER);
         grid.setHgap(20);
         grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
-//        grid.setGridLinesVisible(true);
+        grid.setPadding(new Insets(25, 10, 25, 25));
 
-        //######################
-        int era = 9;
-        List<Integer> animals = Arrays.asList(new Integer[]{5,7,4,6,5,7,6,5,4});
-        List<Integer> plants = Arrays.asList(new Integer[]{2,3,4,2,1,3,4,2,3});
-        List<Integer> energy = Arrays.asList(new Integer[]{30,35,34,36,37,40,39,37,38});
-        List<Integer> lifespan = Arrays.asList(new Integer[]{5,3,6,7,5,6,4,2,4});
-        List<Integer> children = Arrays.asList(new Integer[]{1,1,1,0,2,1,2,1,1});
-        //#####################
-
-        LineChart<Number, Number> lineChart = createChart(era, animals, plants, energy, lifespan, children);
+        LineChart<Number, Number> lineChart = Chart.createChart(era, animals, plants, energy, lifespan, children);
         grid.add(lineChart, 0, 0, 2, 1);
 
         // DATA
@@ -130,48 +82,89 @@ public class App extends Application {
         curChildrenNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
         grid.add(curChildrenNumber, 1, 6);
 
-        // BUTTON
-        Button btn = new Button("Stop the simulation");
-        btn.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
-        btn.setPrefSize(250,60);
-        btn.setOnAction(new EventHandler<>() {
-            @Override
-            public void handle(javafx.event.ActionEvent event) {
-                //TODO stop simulation
-            }
+        // BUTTONS
+        Button stopStart = new Button("Stop the simulation");
+        stopStart.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
+        stopStart.setPrefSize(250,60);
+        stopStart.setOnAction(event -> {
+            //TODO stop start simulation
         });
-        HBox hbBtn = new HBox(30);
-        hbBtn.setAlignment(Pos.CENTER);
-        hbBtn.getChildren().add(btn);
-        grid.add(hbBtn, 0, 7, 2, 1);
+        HBox hbStopStart = new HBox(30);
+        hbStopStart.setAlignment(Pos.CENTER);
+        hbStopStart.getChildren().add(stopStart);
+        grid.add(hbStopStart, 1, 7, 1, 1);
+
+        Button toCsv = new Button("To CSV file");
+        toCsv.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
+        toCsv.setPrefSize(250,60);
+        toCsv.setOnAction(event -> {
+            //TODO convert data to csv
+        });
+        HBox hbToCsv = new HBox(30);
+        hbToCsv.setAlignment(Pos.CENTER);
+        hbToCsv.getChildren().add(toCsv);
+        grid.add(hbToCsv, 0, 7, 1, 1);
 
         return grid;
     }
 
-    public GridPane createMapGrid() {
+    public GridPane createMapGrid(AbstractWorldMap map) {
         //TODO mapa
-        return new GridPane();
+
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.TOP_CENTER);
+        grid.setPadding(new Insets(25, 25, 25, 10));
+
+       int gridElemHeight = 400/map.height;
+       int gridElemWidth = 400/map.width;
+
+        for (int i = 0; i < map.height; i++) {
+            for (int j = 0; j < map.width; j++) {
+                Vector2d vec = new Vector2d(j, i);
+                StackPane stack;
+
+                if (map.isOccupiedByAnimal(vec)) {
+                    Animal animal = map.getStrongestAnimalsAt(vec).get(0);
+                    stack = GuiMapElement.getImage(gridElemWidth, gridElemHeight, animal, map.startEnergy, map.isInJungle(vec));
+                }
+                else if (map.isOccupiedByPlant(vec)) {
+                    Plant plant = map.getPlantAt(vec);
+                    stack = GuiMapElement.getImage(gridElemWidth, gridElemHeight, plant, map.startEnergy, map.isInJungle(vec));
+                }
+                else {
+                    stack = GuiMapElement.getImage(gridElemWidth, gridElemHeight, null, map.startEnergy, map.isInJungle(vec));
+                }
+                grid.add(stack, j, i);
+            }
+        }
+
+        return grid;
     }
 
-    public  void start(Stage primaryStage) {
-        primaryStage.setTitle("Evolution Generator");
+    public void showMainStage() {
+        Stage mainStage = new Stage();
+        mainStage.setTitle("Evolution Generator");
 
         HBox hbox = new HBox(8);
         HBox leftSim = new HBox(8);
         HBox rightSim = new HBox(8);
 
-        leftSim.getChildren().add(createInterfaceGrid());
+        int era = 9;
+        List<Integer> animals = Arrays.asList(new Integer[]{5,7,4,6,5,7,6,5,4});
+        List<Integer> plants = Arrays.asList(new Integer[]{2,3,4,2,1,3,4,2,3});
+        List<Integer> energy = Arrays.asList(new Integer[]{30,35,34,36,37,40,39,37,38});
+        List<Integer> lifespan = Arrays.asList(new Integer[]{5,3,6,7,5,6,4,2,4});
+        List<Integer> children = Arrays.asList(new Integer[]{1,1,1,0,2,1,2,1,1});
+
+        leftSim.getChildren().add(createInterfaceGrid(era, animals, plants, energy, lifespan, children));
+        leftSim.getChildren().add(createMapGrid(new BoundedMap(40,20,10,10,10,0.3, 10)));
 //        rightSim.getChildren().add(createInterfaceGrid());
 
 
         hbox.getChildren().addAll(leftSim, rightSim);
 
         Scene scene = new Scene(hbox, 2000, 700);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
+        mainStage.setScene(scene);
+        mainStage.show();
     }
 }
