@@ -7,25 +7,29 @@ import javafx.scene.chart.XYChart;
 import java.util.List;
 
 public class Chart {
+    public final LineChart<Number, Number> lineChart;
 
-    public static XYChart.Series<Number, Number> createSeries(int era, List<Integer> data) {
+    public Chart() {
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Era");
+        this.lineChart = new LineChart<>(xAxis, yAxis);
+    }
+
+    public XYChart.Series<Number, Number> createSeries(int era, List<Integer> data) {
         // creates series for the chart
 
-        XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
         for (int i = 0; i < era; i++) {
-            series.getData().add(new XYChart.Data<Number, Number>(i+1, data.get(i)));
+            series.getData().add(new XYChart.Data<>(i + 1, data.get(i)));
         }
 
         return series;
     }
 
-    public static LineChart<Number, Number> createChart(int era, List<Integer> animals, List<Integer> plants, List<Integer> energy,
-                                                 List<Integer> lifespan, List<Integer> children) {
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Era");
-        LineChart<Number, Number> lineChart = new LineChart<Number, Number>(xAxis, yAxis);
+    public void createChart(int era, List<Integer> animals,
+                                   List<Integer> plants, List<Integer> energy, List<Integer> lifespan, List<Integer> children) {
 
         XYChart.Series<Number, Number> series1 = createSeries(era, animals);
         series1.setName("Number of animals");
@@ -42,14 +46,12 @@ public class Chart {
         XYChart.Series<Number, Number> series5 = createSeries(era, children);
         series5.setName("Average number of children");
 
-        lineChart.getData().add(series1);
-        lineChart.getData().add(series2);
-        lineChart.getData().add(series3);
-        lineChart.getData().add(series4);
-        lineChart.getData().add(series5);
+        this.lineChart.getData().add(series1);
+        this.lineChart.getData().add(series2);
+        this.lineChart.getData().add(series3);
+        this.lineChart.getData().add(series4);
+        this.lineChart.getData().add(series5);
 
-        lineChart.setCreateSymbols(false);
-
-        return lineChart;
+        this.lineChart.setCreateSymbols(false);
     }
 }

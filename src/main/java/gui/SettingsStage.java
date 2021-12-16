@@ -1,10 +1,12 @@
 package gui;
 
 import javafx.application.Application;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -17,77 +19,91 @@ import javafx.stage.Stage;
 public class SettingsStage extends Application {
 
     public GridPane createInputGrid() {
-        // creates GridPane for the input field
-
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(20);
         grid.setVgap(20);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
+        String fontName = "Tahoma";
+        int fontSize = 16;
+
         // SCENE TITLE
 
         Text sceneTitle = new Text("Welcome to the Evolution Generator!\nEnter simulation parameters:");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font(fontName, FontWeight.NORMAL, 20));
         grid.add(sceneTitle, 0, 0, 2, 1);
-
-        String fontName = "Tahoma";
-        int fontSize = 16;
 
         // INPUT FIELDS
 
         Label widthLabel = new Label("Map width:");
-        widthLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(widthLabel, 0, 1);
         TextField widthTextField = new TextField("100");
-        grid.add(widthTextField, 1, 1);
 
         Label heightLabel = new Label("Map height:");
-        heightLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(heightLabel, 0, 2);
         TextField heightTextField = new TextField("100");
-        grid.add(heightTextField, 1, 2);
 
         Label startEnergyLabel = new Label("Animal start energy:");
-        startEnergyLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(startEnergyLabel, 0, 3);
         TextField startEnergyTextField = new TextField("100");
-        grid.add(startEnergyTextField, 1, 3);
 
         Label moveEnergyLabel = new Label("Animal move energy:");
-        moveEnergyLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(moveEnergyLabel, 0, 4);
         TextField moveEnergyTextField = new TextField("15");
-        grid.add(moveEnergyTextField, 1, 4);
 
         Label plantEnergyLabel = new Label("Plant energy:");
-        plantEnergyLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(plantEnergyLabel, 0, 5);
         TextField plantEnergyTextField = new TextField("35");
-        grid.add(plantEnergyTextField, 1, 5);
 
         Label jungleRatioLabel = new Label("Jungle to steppe ratio (0-100%):");
-        jungleRatioLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(jungleRatioLabel, 0, 6);
         TextField jungleRatioTextField = new TextField("30");
-        grid.add(jungleRatioTextField, 1, 6);
 
         Label initialAnimalsLabel = new Label("Initial number of animals:");
-        initialAnimalsLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(initialAnimalsLabel, 0, 7);
         TextField initialAnimalsTextField = new TextField("10");
-        grid.add(initialAnimalsTextField, 1, 7);
+
+        Label[] labels = {widthLabel, heightLabel, startEnergyLabel, moveEnergyLabel, plantEnergyLabel,
+                jungleRatioLabel, initialAnimalsLabel};
+        TextField[] textFields = {widthTextField, heightTextField, startEnergyTextField, moveEnergyTextField,
+                plantEnergyTextField, jungleRatioTextField, initialAnimalsTextField};
+
+        for (int i = 0; i < 7; i++) {
+            labels[i].setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+            grid.add(labels[i], 0, i+1);
+            grid.add(textFields[i], 1, i+1);
+        }
+
+        // CHECKBOXES
+
+        Label isMagicLabel = new Label("If simulation uses \"magic\" rule:");
+        isMagicLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(isMagicLabel, 0, 8, 2, 1);
+        GridPane.setHalignment(isMagicLabel, HPos.CENTER);
+
+        Label foldedLabel = new Label("Folded map");
+        isMagicLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        Label boundedLabel = new Label("Bounded map");
+        isMagicLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+
+        CheckBox foldedCheckBox = new CheckBox();
+        CheckBox boundedCheckBox = new CheckBox();
+
+        HBox foldedHBox = new HBox(10);
+        HBox boundedHBox = new HBox(10);
+
+        foldedHBox.getChildren().addAll(foldedLabel, foldedCheckBox);
+        boundedHBox.getChildren().addAll(boundedLabel, boundedCheckBox);
+
+        grid.add(foldedHBox, 0, 9);
+        grid.add(boundedHBox, 1, 9);
 
         // BUTTON
 
         Button btn = new Button("Start the simulation");
         btn.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
         btn.setPrefSize(250,60);
+
         btn.setOnAction(event -> {
-            if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") && validate(startEnergyTextField, "[0-9]+") &&
-                    validate(moveEnergyTextField, "[0-9]+") && validate(plantEnergyTextField, "[0-9]+") &&
-                    validate(jungleRatioTextField, "[0-9][0-9]?|100") && validate(initialAnimalsTextField, "[0-9]+")) {
-                //TODO zbierz input z pól tekstowych
+            if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") &&
+                    validate(startEnergyTextField, "[0-9]+") && validate(moveEnergyTextField, "[0-9]+") &&
+                    validate(plantEnergyTextField, "[0-9]+") && validate(jungleRatioTextField, "[0-9][0-9]?|100") &&
+                    validate(initialAnimalsTextField, "[0-9]+")) {
+
                 int width = Integer.parseInt(widthTextField.getText());
                 int height = Integer.parseInt(heightTextField.getText());
                 int startEnergy = Integer.parseInt(startEnergyTextField.getText());
@@ -95,8 +111,11 @@ public class SettingsStage extends Application {
                 int plantEnergy = Integer.parseInt(plantEnergyTextField.getText());
                 double jungleRatio = (double) Integer.parseInt(jungleRatioTextField.getText())/100;
                 int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
+                boolean isMagicFolded = foldedCheckBox.isSelected();
+                boolean isMagicBounded = boundedCheckBox.isSelected();
 
                 SimulationStage simulationStage = new SimulationStage();
+                //width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals, isMagicFolded, isMagicBounded
                 simulationStage.showMainStage();
             }
         });
@@ -104,12 +123,13 @@ public class SettingsStage extends Application {
         HBox hbBtn = new HBox(20);
         hbBtn.setAlignment(Pos.CENTER);
         hbBtn.getChildren().add(btn);
-        grid.add(hbBtn, 0, 9, 2, 1);
+        grid.add(hbBtn, 0, 11, 2, 1);
 
         return grid;
     }
 
     public boolean validate(TextField textField, String regex) {
+        // checks if TextField input is valid based on regex
 
         if (!textField.getText().matches(regex)){
             textField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");

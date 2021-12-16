@@ -1,17 +1,11 @@
 package gui;
 
-import evogen.*;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -21,68 +15,13 @@ import java.util.List;
 
 public class SimulationStage {
     public static final String fontName = "Tahoma";
-    public static final int fontSize = 16;
 
-    public GridPane createInterfaceGrid(int era, List<Integer> animals, List<Integer> plants, List<Integer> energy,
-                                        List<Integer> lifespan, List<Integer> children) {
-
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.TOP_CENTER);
-        grid.setHgap(20);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 10, 25, 25));
-
-        LineChart<Number, Number> lineChart = Chart.createChart(era, animals, plants, energy, lifespan, children);
-        grid.add(lineChart, 0, 0, 2, 1);
-
-        // DATA
-
-        Label curEra = new Label("Era:");
-        curEra.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curEra, 0, 1);
-        Label curEraNumber = new Label(String.format("%d", era));
-        curEraNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curEraNumber, 1, 1);
-
-        Label curAnimals = new Label("Number of animals:");
-        curAnimals.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curAnimals, 0, 2);
-        Label curAnimalsNumber = new Label(String.format("%d", animals.get(animals.size() - 1)));
-        curAnimalsNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curAnimalsNumber, 1, 2);
-
-        Label curPlants = new Label("Number of plants:");
-        curPlants.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curPlants, 0, 3);
-        Label curPlantsNumber = new Label(String.format("%d", plants.get(animals.size() - 1)));
-        curPlantsNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curPlantsNumber, 1, 3);
-
-        Label curEnergy = new Label("Average energy level:");
-        curEnergy.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curEnergy, 0, 4);
-        Label curEnergyNumber = new Label(String.format("%d", energy.get(animals.size() - 1)));
-        curEnergyNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curEnergyNumber, 1, 4);
-
-        Label curLifespan = new Label("Average animal lifespan:");
-        curLifespan.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curLifespan, 0, 5);
-        Label curLifespanNumber = new Label(String.format("%d", lifespan.get(animals.size() - 1)));
-        curLifespanNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curLifespanNumber, 1, 5);
-
-        Label curChildren = new Label("Average number of children:");
-        curChildren.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curChildren, 0, 6);
-        Label curChildrenNumber = new Label(String.format("%d", children.get(animals.size() - 1)));
-        curChildrenNumber.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(curChildrenNumber, 1, 6);
-
+    public HBox createButtonsHBox(GridPane grid) {
         // BUTTONS
+
         Button stopStart = new Button("Stop the simulation");
         stopStart.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
-        stopStart.setPrefSize(250,60);
+        stopStart.setPrefSize(250,45);
         stopStart.setOnAction(event -> {
             //TODO stop start simulation
         });
@@ -93,7 +32,7 @@ public class SimulationStage {
 
         Button toCsv = new Button("To CSV file");
         toCsv.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
-        toCsv.setPrefSize(250,60);
+        toCsv.setPrefSize(250,45);
         toCsv.setOnAction(event -> {
             //TODO convert data to csv
         });
@@ -102,72 +41,24 @@ public class SimulationStage {
         hbToCsv.getChildren().add(toCsv);
         grid.add(hbToCsv, 0, 7, 1, 1);
 
-        return grid;
+        HBox buttonHBox = new HBox();
+        buttonHBox.getChildren().addAll(hbToCsv, hbStopStart);
+        return buttonHBox;
     }
 
-    public GridPane createMapGrid(AbstractWorldMap map) {
-        //TODO mapa
+    public HBox createSimulationHBox() {
+        //TODO laczy wszystkie skladniki w hbox z info, wykresem i mapa
 
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.TOP_CENTER);
-        grid.setPadding(new Insets(25, 25, 10, 25));
-
-       int gridElemHeight = 400/map.height;
-       int gridElemWidth = 400/map.width;
-
-        for (int i = 0; i < map.height; i++) {
-            for (int j = 0; j < map.width; j++) {
-                Vector2d vec = new Vector2d(j, i);
-                StackPane stack;
-
-                if (map.isOccupiedByAnimal(vec)) {
-                    Animal animal = map.getStrongestAnimalsAt(vec).get(0);
-                    stack = GuiMapElement.getImage(gridElemWidth, gridElemHeight, animal, map.startEnergy, map.isInJungle(vec));
-                }
-                else if (map.isOccupiedByPlant(vec)) {
-                    Plant plant = map.getPlantAt(vec);
-                    stack = GuiMapElement.getImage(gridElemWidth, gridElemHeight, plant, map.startEnergy, map.isInJungle(vec));
-                }
-                else {
-                    stack = GuiMapElement.getImage(gridElemWidth, gridElemHeight, null, map.startEnergy, map.isInJungle(vec));
-                }
-                grid.add(stack, j, i);
-            }
-        }
-
-        return grid;
+        return new HBox();
     }
 
-    public GridPane createAnimalInfo() {
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.TOP_CENTER);
-        grid.setHgap(20);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(10, 25, 25, 25));
-
-        //TODO info o zaznaczonym zwierzu
-        Label descendants= new Label("Number of all descendands:");
-        descendants.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(descendants, 0, 1);
-        Label descendantsCount = new Label("Number of all descendands:");
-        grid.add(descendantsCount, 1, 1);
-
-        Label heightLabel = new Label("Map height:");
-        heightLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(heightLabel, 0, 2);
-        TextField heightTextField = new TextField("100");
-        grid.add(heightTextField, 1, 2);
-
-        return grid;
+    public void reloadStage() {
+        // TODO reload stage after call from engine
     }
 
-    public void showMainStage() {
+    public void showMainStage(/*IEngine foldedSimulationEngine, IEngine boundedSimulationEngine*/) {
         Stage mainStage = new Stage();
         mainStage.setTitle("Evolution Generator");
-
-        HBox hbox = new HBox(8);
-        HBox leftSim = new HBox(8);
-        HBox rightSim = new HBox(8);
 
         int era = 9;
         List<Integer> animals = Arrays.asList(new Integer[]{5,7,4,6,5,7,6,5,4});
@@ -176,22 +67,32 @@ public class SimulationStage {
         List<Integer> lifespan = Arrays.asList(new Integer[]{5,3,6,7,5,6,4,2,4});
         List<Integer> children = Arrays.asList(new Integer[]{1,1,1,0,2,1,2,1,1});
 
-        leftSim.getChildren().add(createInterfaceGrid(era, animals, plants, energy, lifespan, children));
-
-        VBox mapAndInfo = new VBox(10);
-        mapAndInfo.getChildren().add(createMapGrid(new BoundedMap(40,20,10,10,10,0.3, 10)));
-        mapAndInfo.getChildren().add(createAnimalInfo());
-
-        leftSim.getChildren().add(mapAndInfo);
+        HBox mainHBox = new HBox(8);
+        HBox leftSim = new HBox(8);
+        HBox rightSim = new HBox(8);
+        mainHBox.getChildren().addAll(leftSim, rightSim);
 
 
-        //        rightSim.getChildren().add(createInterfaceGrid());
 
 
-        hbox.getChildren().addAll(leftSim, rightSim);
-
-        Scene scene = new Scene(hbox, 2000, 700);
+        Scene scene = new Scene(mainHBox, 2000, 700);
         mainStage.setScene(scene);
         mainStage.show();
     }
 }
+
+
+
+
+//    public SimulationStage(int width, int height, int startEnergy, int moveEnergy, int plantEnergy,
+//                           double jungleRatio, int initialAnimals, boolean isMagicFolded, boolean isMagicBounded) {
+//        this.width = width;
+//        this.height = height;
+//        this.startEnergy = startEnergy;
+//        this.moveEnergy = moveEnergy;
+//        this.plantEnergy = plantEnergy;
+//        this.jungleRatio = jungleRatio;
+//        this.initialAnimals = initialAnimals;
+//        this.isMagicFolded = isMagicFolded;
+//        this.isMagicBounded = isMagicBounded;
+//    }

@@ -3,31 +3,34 @@ package gui;
 import evogen.Animal;
 import evogen.IMapObject;
 import evogen.Plant;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
-public class GuiMapElement {
+public class MapElement {
 
     public static StackPane getImage(int width, int height, IMapObject object, int maxEnergy, boolean isJungle) {
-        //TODO kolory i gridlines
+        //TODO optymalizacja
         StackPane stack = new StackPane();
+        stack.setBorder(new Border(new BorderStroke(Color.web("0x000000"),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.5))));
+
         Rectangle rec = new Rectangle();
         rec.setHeight(height);
         rec.setWidth(width);
 
         if (object instanceof Plant) {
-            rec.setFill(Color.web("0x06690B"));
+            rec.setFill(Color.web("0x306e26"));
             stack.getChildren().add(rec);
             return stack;
         }
 
         if (isJungle) {
-            rec.setFill(Color.web("0x78F542"));
+            rec.setFill(Color.web("0x88a464"));
         }
         else {
-            rec.setFill(Color.web("0x348C31"));
+            rec.setFill(Color.web("0xd8bca4"));
         }
 
         stack.getChildren().add(rec);
