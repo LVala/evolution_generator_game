@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Animal {
+public class Animal implements IMapObject {
     private Vector2d position;
     private MapDirection orientation = MapDirection.getRandomDirection();
     private int energy;

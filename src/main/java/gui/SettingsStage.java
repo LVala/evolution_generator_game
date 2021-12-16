@@ -1,7 +1,6 @@
 package gui;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,8 +13,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.awt.event.ActionEvent;
 
 public class SettingsStage extends Application {
 
@@ -39,45 +36,45 @@ public class SettingsStage extends Application {
 
         // INPUT FIELDS
 
-        Label width = new Label("Map width:");
-        width.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(width, 0, 1);
+        Label widthLabel = new Label("Map width:");
+        widthLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(widthLabel, 0, 1);
         TextField widthTextField = new TextField("100");
         grid.add(widthTextField, 1, 1);
 
-        Label height = new Label("Map height:");
-        height.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(height, 0, 2);
+        Label heightLabel = new Label("Map height:");
+        heightLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(heightLabel, 0, 2);
         TextField heightTextField = new TextField("100");
         grid.add(heightTextField, 1, 2);
 
-        Label startEnergy = new Label("Animal start energy:");
-        startEnergy.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(startEnergy, 0, 3);
+        Label startEnergyLabel = new Label("Animal start energy:");
+        startEnergyLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(startEnergyLabel, 0, 3);
         TextField startEnergyTextField = new TextField("100");
         grid.add(startEnergyTextField, 1, 3);
 
-        Label moveEnergy = new Label("Animal move energy:");
-        moveEnergy.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(moveEnergy, 0, 4);
+        Label moveEnergyLabel = new Label("Animal move energy:");
+        moveEnergyLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(moveEnergyLabel, 0, 4);
         TextField moveEnergyTextField = new TextField("15");
         grid.add(moveEnergyTextField, 1, 4);
 
-        Label plantEnergy = new Label("Plant energy:");
-        plantEnergy.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(plantEnergy, 0, 5);
+        Label plantEnergyLabel = new Label("Plant energy:");
+        plantEnergyLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(plantEnergyLabel, 0, 5);
         TextField plantEnergyTextField = new TextField("35");
         grid.add(plantEnergyTextField, 1, 5);
 
-        Label jungleRatio = new Label("Jungle to steppe ratio (0-100%):");
-        jungleRatio.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(jungleRatio, 0, 6);
+        Label jungleRatioLabel = new Label("Jungle to steppe ratio (0-100%):");
+        jungleRatioLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(jungleRatioLabel, 0, 6);
         TextField jungleRatioTextField = new TextField("30");
         grid.add(jungleRatioTextField, 1, 6);
 
-        Label initialAnimals = new Label("Initial number of animals:");
-        initialAnimals.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(initialAnimals, 0, 7);
+        Label initialAnimalsLabel = new Label("Initial number of animals:");
+        initialAnimalsLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(initialAnimalsLabel, 0, 7);
         TextField initialAnimalsTextField = new TextField("10");
         grid.add(initialAnimalsTextField, 1, 7);
 
@@ -86,15 +83,21 @@ public class SettingsStage extends Application {
         Button btn = new Button("Start the simulation");
         btn.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
         btn.setPrefSize(250,60);
-        btn.setOnAction(new EventHandler<>() {
-            @Override
-            public void handle(javafx.event.ActionEvent event) {
-                if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") && validate(startEnergyTextField, "[0-9]+") &&
-                        validate(moveEnergyTextField, "[0-9]+") && validate(plantEnergyTextField, "[0-9]+") &&
-                        validate(jungleRatioTextField, "[0-9][0-9]?|100") && validate(initialAnimalsTextField, "[0-9]+")) {
-                    //TODO start simulation
-                    App.main(new String[] {"a"});
-                }
+        btn.setOnAction(event -> {
+            if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") && validate(startEnergyTextField, "[0-9]+") &&
+                    validate(moveEnergyTextField, "[0-9]+") && validate(plantEnergyTextField, "[0-9]+") &&
+                    validate(jungleRatioTextField, "[0-9][0-9]?|100") && validate(initialAnimalsTextField, "[0-9]+")) {
+                //TODO zbierz input z pól tekstowych
+                int width = Integer.parseInt(widthTextField.getText());
+                int height = Integer.parseInt(heightTextField.getText());
+                int startEnergy = Integer.parseInt(startEnergyTextField.getText());
+                int moveEnergy = Integer.parseInt(moveEnergyTextField.getText());
+                int plantEnergy = Integer.parseInt(plantEnergyTextField.getText());
+                double jungleRatio = (double) Integer.parseInt(jungleRatioTextField.getText())/100;
+                int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
+
+                SimulationStage simulationStage = new SimulationStage();
+                simulationStage.showMainStage();
             }
         });
 

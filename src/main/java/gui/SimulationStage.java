@@ -1,19 +1,17 @@
 package gui;
 
 import evogen.*;
-import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -21,7 +19,9 @@ import javafx.stage.Stage;
 import java.util.Arrays;
 import java.util.List;
 
-public class App{
+public class SimulationStage {
+    public static final String fontName = "Tahoma";
+    public static final int fontSize = 16;
 
     public GridPane createInterfaceGrid(int era, List<Integer> animals, List<Integer> plants, List<Integer> energy,
                                         List<Integer> lifespan, List<Integer> children) {
@@ -36,9 +36,6 @@ public class App{
         grid.add(lineChart, 0, 0, 2, 1);
 
         // DATA
-
-        String fontName = "Tahoma";
-        int fontSize = 16;
 
         Label curEra = new Label("Era:");
         curEra.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
@@ -113,7 +110,7 @@ public class App{
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_CENTER);
-        grid.setPadding(new Insets(25, 25, 25, 10));
+        grid.setPadding(new Insets(25, 25, 10, 25));
 
        int gridElemHeight = 400/map.height;
        int gridElemWidth = 400/map.width;
@@ -141,6 +138,29 @@ public class App{
         return grid;
     }
 
+    public GridPane createAnimalInfo() {
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.TOP_CENTER);
+        grid.setHgap(20);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(10, 25, 25, 25));
+
+        //TODO info o zaznaczonym zwierzu
+        Label descendants= new Label("Number of all descendands:");
+        descendants.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(descendants, 0, 1);
+        Label descendantsCount = new Label("Number of all descendands:");
+        grid.add(descendantsCount, 1, 1);
+
+        Label heightLabel = new Label("Map height:");
+        heightLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        grid.add(heightLabel, 0, 2);
+        TextField heightTextField = new TextField("100");
+        grid.add(heightTextField, 1, 2);
+
+        return grid;
+    }
+
     public void showMainStage() {
         Stage mainStage = new Stage();
         mainStage.setTitle("Evolution Generator");
@@ -157,8 +177,15 @@ public class App{
         List<Integer> children = Arrays.asList(new Integer[]{1,1,1,0,2,1,2,1,1});
 
         leftSim.getChildren().add(createInterfaceGrid(era, animals, plants, energy, lifespan, children));
-        leftSim.getChildren().add(createMapGrid(new BoundedMap(40,20,10,10,10,0.3, 10)));
-//        rightSim.getChildren().add(createInterfaceGrid());
+
+        VBox mapAndInfo = new VBox(10);
+        mapAndInfo.getChildren().add(createMapGrid(new BoundedMap(40,20,10,10,10,0.3, 10)));
+        mapAndInfo.getChildren().add(createAnimalInfo());
+
+        leftSim.getChildren().add(mapAndInfo);
+
+
+        //        rightSim.getChildren().add(createInterfaceGrid());
 
 
         hbox.getChildren().addAll(leftSim, rightSim);

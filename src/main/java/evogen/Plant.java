@@ -1,6 +1,6 @@
 package evogen;
 
-public class Plant {
+public class Plant implements IMapObject{
     private final Vector2d position;
     private final int plantEnergy;
 

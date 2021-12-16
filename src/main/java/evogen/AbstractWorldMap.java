@@ -7,8 +7,8 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     protected final Map<Vector2d, Plant> plants = new HashMap<>();
     protected final List<Animal> deadAnimals = new ArrayList<>();
 
-    protected final int width;
-    protected final int height;
+    public final int width;
+    public final int height;
 
     public final int startEnergy;
     public final int moveEnergy;
@@ -20,6 +20,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
     protected int steppePlantNumber;
     protected int junglePlantNumber;
+    protected int animalNumber = 0;
 
     protected final int maxSteppePlantNumber;
     protected final int maxJunglePlantNumber;
@@ -35,7 +36,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         this.plantEnergy = plantEnergy;
         this.jungleWidth = (int) Math.round(this.width * jungleRatio);
         this.jungleHeight = (int) Math.round(this.height * jungleRatio);
-        this.jungleCorner = new Vector2d(((this.width - this.jungleWidth)/2) + 1, ((this.height - this.jungleWidth)/2) + 1);
+        this.jungleCorner = new Vector2d(((this.width - this.jungleWidth)/2), ((this.height - this.jungleHeight)/2));
 
         this.steppePlantNumber = 0;
         this.junglePlantNumber = 0;
@@ -52,7 +53,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         // plants cannot be created on top of animals
 
         int i = 0;
-        while (i < initialAnimals) {
+        while (i < initialAnimals && i < this.height*this.width) {
             Vector2d rndVector = Vector2d.getRandomVector(this.width, this.height);
             if (this.isOccupiedByAnimal(rndVector)) continue;
 
@@ -144,6 +145,11 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         return isOccupiedByAnimal(position) || isOccupiedByPlant(position);
     }
 
+    public boolean isInJungle(Vector2d position) {
+        return position.isInside(this.jungleCorner.x, this.jungleCorner.x + this.jungleWidth,
+                this.jungleCorner.y, this.jungleCorner.y + this.jungleHeight);
+    }
+
     // PLACE AND REMOVE OBJECT ON MAP METHODS
 
     public void placeAnimal(Animal animal) {
@@ -154,14 +160,15 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
             this.animals.put(animalPosition, new LinkedList<>());
         }
         this.animals.get(animalPosition).add(animal);
+        this.animalNumber++;
     }
 
     public void placePlants() {
         // places plants on the map, based on random position because all the plants are the same
         // one plant in the jungle, one outside
         // cant place plant on animal or on another plant
-
-        if (this.junglePlantNumber < this.maxJunglePlantNumber) {
+        //TODO problemy, gdy nie ma wolnych pól
+        if (this.junglePlantNumber < this.maxJunglePlantNumber && this.jungleHeight > 0 && this.jungleWidth > 0) {
             Vector2d rndPosition1 = Vector2d.getRandomVector(jungleWidth, jungleHeight).add(this.jungleCorner);
             while (this.isOccupied(rndPosition1)) {
                 rndPosition1= Vector2d.getRandomVector(jungleWidth, jungleHeight).add(this.jungleCorner);
@@ -173,9 +180,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
         if (this.steppePlantNumber < this.maxSteppePlantNumber) {
             Vector2d rndPosition2 = Vector2d.getRandomVector(width, height);
-            while (this.isOccupied(rndPosition2) ||
-                    rndPosition2.isInside(this.jungleCorner.x, this.jungleCorner.x + this.jungleWidth,
-                            this.jungleCorner.y, this.jungleCorner.y + this.jungleHeight)) {
+            while (this.isOccupied(rndPosition2) || isInJungle(rndPosition2)) {
                 rndPosition2 = Vector2d.getRandomVector(jungleWidth, jungleHeight).add(this.jungleCorner);
             }
             Plant newPlant = new Plant(rndPosition2, this.plantEnergy);
@@ -189,7 +194,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         if (this.animals.get(animal.getPosition()).isEmpty()) this.animals.remove(animal.getPosition());
         animal.setDeathEra(deathEra);
         this.deadAnimals.add(animal);
-
+        this.animalNumber--;
     }
 
     // OBSERVER
