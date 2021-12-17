@@ -11,7 +11,10 @@ public class Animal implements IMapObject {
     private int energy;
     private final Genotype genotype;
     private final AbstractWorldMap map;
-    protected int deathEra;
+
+    private int deathEra;
+    private int childrenNumber;
+    private int descendantsNumber;
 
     private final List<IMapActionObserver> observers = new ArrayList<>();
 
@@ -38,6 +41,22 @@ public class Animal implements IMapObject {
 
     public int getEnergy() {
         return this.energy;
+    }
+
+    public Genotype getGenotype() {
+        return this.genotype;
+    }
+
+    public int getDeathEra() {
+        return this.deathEra;
+    }
+
+    public int getChildrenNumber() {
+        return this.childrenNumber;
+    }
+
+    public int getDescendantsNumber() {
+        return this.descendantsNumber;
     }
 
     // OBSERVER

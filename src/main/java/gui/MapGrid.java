@@ -19,7 +19,7 @@ public class MapGrid {
 
     public MapGrid(AbstractWorldMap map) {
         this.mapGrid.setAlignment(Pos.TOP_CENTER);
-        this.mapGrid.setPadding(new Insets(25, 25, 10, 25));
+        this.mapGrid.setPadding(new Insets(25, 25, 10, 10));
 
         this.gridElemHeight = 400/map.height;
         this.gridElemWidth = 400/map.width;

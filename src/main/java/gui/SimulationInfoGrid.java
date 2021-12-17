@@ -67,4 +67,8 @@ public class SimulationInfoGrid {
             this.simulationInfoGrid.add(values[i], 1, i);
         }
     }
+
+    public void reloadSimulationInfoGrid(int era) {
+
+    }
 }

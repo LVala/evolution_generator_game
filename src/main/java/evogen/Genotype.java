@@ -2,6 +2,7 @@ package evogen;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Genotype {
     private static final int LOWER_BOUND = 0;  // inclusive
@@ -37,7 +38,7 @@ public class Genotype {
     }
 
     public String toString() {
-        return Arrays.toString(this.genes);
+        return Arrays.stream(this.genes).mapToObj(String::valueOf).collect(Collectors.joining(""));
     }
 
     public int getRandomGene() {
