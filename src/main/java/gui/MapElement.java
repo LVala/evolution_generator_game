@@ -18,7 +18,7 @@ public class MapElement {
         //TODO optymalizacja
         StackPane stack = new StackPane();
         stack.setBorder(new Border(new BorderStroke(Color.web("0x000000"),
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.5))));
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.4))));
 
         Rectangle rec = new Rectangle();
         rec.setHeight(height);

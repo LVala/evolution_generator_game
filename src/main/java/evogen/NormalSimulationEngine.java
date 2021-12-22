@@ -3,6 +3,7 @@ package evogen;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 public class NormalSimulationEngine implements IEngine{
 
@@ -18,9 +19,9 @@ public class NormalSimulationEngine implements IEngine{
     public void removeDeadAnimals(AbstractWorldMap map) {
         // removes dead animals from the map
         //TODO nietestowane (nic w tej klasie wlasciwie)
-        Map<Vector2d, LinkedList<Animal>> animals = map.getAnimals();
+        Map<Vector2d, TreeSet<Animal>> animals = map.getAnimals();
 
-        for (LinkedList<Animal> field : animals.values()) {
+        for (TreeSet<Animal> field : animals.values()) {
             for (Animal animal : field) {
                 if (animal.getEnergy() <= 0) {
                     map.removeDeadAnimal(animal, era);
@@ -30,21 +31,21 @@ public class NormalSimulationEngine implements IEngine{
     }
 
     public void moveAnimals(AbstractWorldMap map) {
-        Map<Vector2d, LinkedList<Animal>> animals = map.getAnimals();
+        Map<Vector2d, TreeSet<Animal>> animals = map.getAnimals();
 
-        for (LinkedList<Animal> field : animals.values()) {
+        for (TreeSet<Animal> field : animals.values()) {
             for (Animal animal : field) {
-                animal.move();
+                animal.move(map.moveEnergy);
             }
         }
     }
 
     public void eatPlants(AbstractWorldMap map) {
-        Map<Vector2d, LinkedList<Animal>> animals = map.getAnimals();
+        Map<Vector2d, TreeSet<Animal>> animals = map.getAnimals();
 
-        for (Map.Entry<Vector2d, LinkedList<Animal>> entry : animals.entrySet()) {
+        for (Map.Entry<Vector2d, TreeSet<Animal>> entry : animals.entrySet()) {
             if (map.isOccupiedByPlant(entry.getKey())) {
-                List<Animal> strongest = map.getStrongestAnimalsAt(entry.getKey());
+                List<Animal> strongest = (List<Animal>) map.getStrongestAnimalsAt(entry.getKey());
                 for (Animal animal : strongest) {
                     animal.eatPlant(entry.getKey(), map.plantEnergy, strongest.size());
                 }
@@ -53,17 +54,17 @@ public class NormalSimulationEngine implements IEngine{
 
     }
 
-    public void reproduceAnimals(AbstractWorldMap map) {
-        Map<Vector2d, LinkedList<Animal>> animals = map.getAnimals();
-
-        for (Map.Entry<Vector2d, LinkedList<Animal>> entry : animals.entrySet()) {
-            if (entry.getValue().size() >= 2) {
-                Animal[] twoStrongest = map.getTwoStrongestAnimalsAt(entry.getKey());
-                Animal child = twoStrongest[0].reproduce(twoStrongest[1]);
-                map.placeAnimal(child);
-            }
-        }
-    }
+//    public void reproduceAnimals(AbstractWorldMap map) {
+//        Map<Vector2d, TreeSet<Animal>> animals = map.getAnimals();
+//
+//        for (Map.Entry<Vector2d, TreeSet<Animal>> entry : animals.entrySet()) {
+//            if (entry.getValue().size() >= 2) {
+//                Animal[] twoStrongest = map.getTwoStrongestAnimalsAt(entry.getKey());
+//                Animal child = twoStrongest[0].reproduce(twoStrongest[1]);
+//                map.placeAnimal(child);
+//            }
+//        }
+//    }
 
     public void run() {
         //TODO to na brudno
@@ -72,7 +73,7 @@ public class NormalSimulationEngine implements IEngine{
             removeDeadAnimals(foldedMap);
             moveAnimals(foldedMap);
             eatPlants(foldedMap);
-            reproduceAnimals(foldedMap);
+            //reproduceAnimals(foldedMap);
             foldedMap.placePlants();
             //TODO inform gui that map changed
         }

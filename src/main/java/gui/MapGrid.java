@@ -21,8 +21,8 @@ public class MapGrid {
         this.mapGrid.setAlignment(Pos.TOP_CENTER);
         this.mapGrid.setPadding(new Insets(25, 25, 10, 10));
 
-        this.gridElemHeight = 400/map.height;
-        this.gridElemWidth = 400/map.width;
+        this.gridElemHeight = 300/map.height;
+        this.gridElemWidth = 300/map.width;
 
         this.map = map;
     }

@@ -35,7 +35,7 @@ public class Vector2d {
         return String.format("(%d, %d)", x, y);
     }
 
-    // METHODS NEEDED TO USE IN HASHMAP
+    // METHODS NEEDED TO STORE IN HASHMAP
 
     public boolean equals(Object other) {
         if (this == other) return true;

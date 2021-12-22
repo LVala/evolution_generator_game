@@ -42,13 +42,13 @@ public class SimulationBox {
         HBox buttons = createButtonsHBox();
 
         //TODO do usuniecia
-        AbstractWorldMap map = new FoldedMap(70,70,10,10,10,0.3,10);
+        AbstractWorldMap map = new FoldedMap(50,50,10,10,10,0.3,10);
         this.mapGrid = new MapGrid(map);
         this.mapGrid.createMapGrid();
 
         this.animalInfoGrid = new AnimalInfoGrid();
         this.animalInfoGrid.createAnimalInfo(new Animal(new Vector2d(1,1), 3, Genotype.generateRandomGenotype(),
-                map));
+                map, 0));
 
 
         VBox chartAndInfoBox = new VBox();

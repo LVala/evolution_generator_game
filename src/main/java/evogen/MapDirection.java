@@ -32,6 +32,12 @@ public enum MapDirection {
         return null;
     }
 
+    public MapDirection opposite() {
+        // returns Map Direction opposite to this
+
+        return this.next(4);
+    }
+
     public Vector2d getDirectionVector() {
         // returns Vector2d corresponding to current direction
 

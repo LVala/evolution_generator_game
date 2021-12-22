@@ -51,11 +51,11 @@ public class AnimalInfoGrid {
         genotypeValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
         this.animalInfoGrid.add(genotypeValue, 1,1);
 
-        Label childrenValue = new Label(Integer.toString(animal.getChildrenNumber()));
+        Label childrenValue = new Label(Integer.toString(animal.getTrackedChildrenNumber()));
         childrenValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
         this.animalInfoGrid.add(childrenValue, 1,2);
 
-        Label descendantsValue = new Label(Integer.toString(animal.getDescendantsNumber()));
+        Label descendantsValue = new Label(Integer.toString(animal.getTrackedDescendantsNumber()));
         descendantsValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
         this.animalInfoGrid.add(descendantsValue, 1,3);
 

@@ -27,7 +27,7 @@ public class SimulationStage {
         mainStage.setTitle("Evolution Generator");
 
         //TODO do usniecia
-        IEngine engine = new NormalSimulationEngine(100,100,1,1,1,0.3,1);
+        IEngine engine = new NormalSimulationEngine(20,20,10,10,10,0.3,10);
 
         SimulationBox foldedSimulationBox = new SimulationBox(engine);
         SimulationBox boundedSimulationBox = new SimulationBox(engine);
@@ -35,7 +35,7 @@ public class SimulationStage {
         HBox mainHBox = new HBox();
         mainHBox.getChildren().addAll(foldedSimulationBox.simulationBox, boundedSimulationBox.simulationBox);
 
-        Scene scene = new Scene(mainHBox, 2000, 700);
+        Scene scene = new Scene(mainHBox, 1500, 700);
         mainStage.setScene(scene);
         mainStage.show();
     }

@@ -11,28 +11,36 @@ public class Animal implements IMapObject {
     private int energy;
     private final Genotype genotype;
     private final AbstractWorldMap map;
-
-    private int deathEra;
-    private int childrenNumber;
-    private int descendantsNumber;
-
     private final List<IMapActionObserver> observers = new ArrayList<>();
 
-    // CONSTRUCTOR
+    private final int bornEra;
+    private int deathEra = -1;
 
-    public Animal(Vector2d position, int energy, Genotype genotype, AbstractWorldMap map) {
+    private int childrenNumber = 0;
+    private int trackedChildrenNumber = 0;
+    private int trackedDescendantsNumber = 0;
+
+    private boolean ifTracked = false;
+    private Animal trackedAncestor = null;
+
+    // CONSTRUCTOR   // TODO trzeba bedzie wszedzie pododawać komentarze i wyjatki
+
+    public Animal(Vector2d position, int energy, Genotype genotype, AbstractWorldMap map, int bornEra) {
         this.position = position;
         this.energy = energy;
         this.genotype = genotype;
         this.map = map;
+        this.bornEra = bornEra;
 
         this.addObserver(map);
     }
 
     // GETTERS AND SETTERS
 
-    public void setDeathEra(int deathEra) {
-        this.deathEra = deathEra;
+    public void setIfTracked(boolean ifTracked) {
+        this.ifTracked = ifTracked;
+        this.trackedChildrenNumber = 0;
+        this.trackedDescendantsNumber = 0;
     }
 
     public Vector2d getPosition() {
@@ -47,53 +55,59 @@ public class Animal implements IMapObject {
         return this.genotype;
     }
 
+    public void setDeathEra(int era) {
+        this.deathEra = era;
+    }
+
+    public int getBornEra() {
+        return this.bornEra;
+    }
+
     public int getDeathEra() {
+        // -1 means that animal is alive
         return this.deathEra;
+    }
+
+    public int getTrackedChildrenNumber() {
+        return this.trackedChildrenNumber;
+    }
+
+    public int getTrackedDescendantsNumber() {
+        return this.trackedDescendantsNumber;
     }
 
     public int getChildrenNumber() {
         return this.childrenNumber;
     }
 
-    public int getDescendantsNumber() {
-        return this.descendantsNumber;
-    }
-
     // OBSERVER
 
-    void addObserver(IMapActionObserver observer) {
+    private void addObserver(IMapActionObserver observer) {
         this.observers.add(observer);
     }
 
-    void plantEaten(Vector2d position) {
+    private void plantEaten(Vector2d position) {
         for (IMapActionObserver observer : this.observers) {
             observer.plantEaten(position);
         }
     }
 
-    public void animalPositionChanged(Animal animal, Vector2d oldPosition) {
+    private void animalPositionChanged(Animal animal, Vector2d oldPosition) {
         for (IMapActionObserver observer : this.observers) {
             observer.animalPositionChanged(animal, oldPosition);
         }
     }
 
-    // TO STRING
-
-    public String toString() {
-        return String.format("|Position: %s, Orientation: %s, " +
-                "Energy: %d|\n", this.position, this.orientation, this.energy);
-    }
-
     // MAP ACTION METHODS
 
-    public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) {
+    public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) { // TODO nie wiem czy przekazywać planta czy energie samą
         this.energy += (plantEnergy/splitBetween);
         plantEaten(position);
+
+        this.map.changeSumEnergy(plantEnergy);
     }
 
-    public Animal reproduce(Animal other) {
-        // creates new animal based on parents energy and genotypes
-
+    public Animal reproduce(Animal other, int bornEra) {
         boolean biggerTakesLeft = new Random().nextBoolean();
 
         Animal bigger, smaller;
@@ -127,20 +141,60 @@ public class Animal implements IMapObject {
         this.energy -= (int) (0.25 * this.energy);
         other.energy -= (int) (0.25 * other.energy);
 
-        return new Animal(this.position, newEnergy, newGenotype, this.map);
+        Animal newAnimal = new Animal(this.position, newEnergy, newGenotype, this.map, bornEra);
+
+        // incrementing children and ancestor counters, setting child's ancestor
+
+        this.childrenNumber++;
+        other.childrenNumber++;
+
+        if (this.ifTracked) {
+            this.trackedChildrenNumber++;
+            this.trackedDescendantsNumber++;
+        }
+        else if (other.ifTracked) {
+            other.trackedChildrenNumber++;
+            other.trackedDescendantsNumber++;
+        }
+        if (this.trackedAncestor != null && this.trackedAncestor.ifTracked) {
+            this.trackedAncestor.trackedDescendantsNumber++;
+            newAnimal.trackedAncestor = this.trackedAncestor;
+        }
+        else if (other.trackedAncestor != null && other.trackedAncestor.ifTracked) {
+            other.trackedAncestor.trackedDescendantsNumber++;
+            newAnimal.trackedAncestor = other.trackedAncestor;
+        }
+
+        this.map.changeSumChildrenNumber(2);
+
+        return newAnimal;
     }
 
-    public void move() {
-        // responsible for moving animal on the map
-
-        Vector2d oldPosition = this.getPosition();
+    public void move(int moveEnergy) {
+        Vector2d oldPosition = this.position;
         int rndGene = this.genotype.getRandomGene();
-        this.orientation = this.orientation.next(rndGene);
 
-        if (rndGene == 0 || rndGene == 4) {
+        if (rndGene == 0) {
             this.position = this.map.getMovePosition(this.getPosition(), this.orientation);
             animalPositionChanged(this, oldPosition);
         }
+        else if (rndGene == 4) {
+            this.position = this.map.getMovePosition(this.getPosition(), this.orientation.opposite());
+            animalPositionChanged(this, oldPosition);
+        }
+        else {
+            this.orientation = this.orientation.next(rndGene);
+        }
 
+        this.map.changeSumEnergy((-1) * Math.min(moveEnergy, this.energy));
+
+        this.energy = Math.max(this.energy - moveEnergy, 0);
+    }
+
+    // TO STRING
+    // TODO do usunięcia
+    public String toString() {
+        return String.format("|Position: %s, Orientation: %s, " +
+                "Energy: %d|\n", this.position, this.orientation, this.energy);
     }
 }
