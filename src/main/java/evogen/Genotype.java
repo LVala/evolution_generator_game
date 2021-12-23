@@ -1,6 +1,7 @@
 package evogen;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -54,5 +55,21 @@ public class Genotype {
         int sp = (int) (splitPoint * GENES_LENGTH);
         if (takeLeft) return Arrays.copyOfRange(this.genes, 0, sp);
         else return Arrays.copyOfRange(this.genes, sp, this.genes.length);
+    }
+
+    // METHODS NEEDED TO STORE IN HASHMAP
+
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Genotype that)) return false;
+        for (int i = 0; i < GENES_LENGTH; i++) {
+            if (this.genes[i] != ((Genotype) other).genes[i]) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash((Object) this.genes);
     }
 }

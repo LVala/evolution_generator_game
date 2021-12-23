@@ -5,7 +5,7 @@ import java.util.*;
 abstract public class AbstractWorldMap implements IMapActionObserver {
     protected final Map<Vector2d, TreeSet<Animal>> animals = new HashMap<>();
     protected final Map<Vector2d, Plant> plants = new HashMap<>();
-    protected final List<Animal> deadAnimals = new ArrayList<>();
+    protected final List<Animal> deadAnimals = new ArrayList<>(); // TODO nie wiem czy to potrzebne
 
     public final int width;
     public final int height;
@@ -17,7 +17,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     protected final int jungleSide;
     protected final Vector2d jungleCorner;  // lower left jungle corner, inclusive
 
-    protected final Map<Genotype, Integer> genotypeCounter = new HashMap<>(); // TODO hashcode i equals do genotypu
+    protected final Map<Genotype, Integer> genotypeCounter = new HashMap<>();
     protected int plantNumber = 0;
     protected int animalNumber = 0;
     protected int sumEnergy;
@@ -36,18 +36,15 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         this.jungleSide = (int) Math.round(Math.sqrt((jungleRatio / (1 + jungleRatio)) * (this.width * this.height)));
         this.jungleCorner = new Vector2d(((this.width - this.jungleSide)/2), ((this.height - this.jungleSide)/2));
 
-        this.sumEnergy = initialAnimals * startEnergy;
-
         initializeAnimals(initialAnimals);
     }
 
-    private void initializeAnimals(int initialAnimals) {
-        // TODO tez watpliwe rozwiazanie, gdy nie moze znalezc wolnego miejsca
+    private void initializeAnimals(int initialAnimals) { // TODO w tych rzeczach można by na końcu petle, która stawai na pierwszym wolnym  miejscu
         int i = 0;
         int iterator = 0;
         while (i < initialAnimals && iterator < 2 * this.height*this.width) {
             Vector2d rndVector = Vector2d.getRandomVector(this.width, this.height);
-            if (this.isOccupiedByAnimal(rndVector)) {
+            if (this.isOccupiedByAnimal(rndVector, 1)) {
                 iterator++;
                 continue;
             }
@@ -71,24 +68,47 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public int getAverageLifespan() {
+        if (this.deadAnimals.size() == 0) return -1;
         return this.sumLifespan/this.deadAnimals.size();
     }
 
     public int getAverageEnergy() {
+        if (this.animalNumber == 0) return -1;
         return this.sumEnergy/this.animalNumber;
     }
 
     public int getAverageChildrenNumber() {
+        if (this.animalNumber == 0) return -1;
         return this.sumChildrenNumber/this.animalNumber;
     }
 
-    public Genotype getMostCommonGenotype() {
-        // TODO ta metoda
-        return Genotype.generateRandomGenotype();
+    public int getAnimalNumber() {
+        return this.animalNumber;
+    }
+
+    public int getPlantNumber() {
+        return this.plantNumber;
+    }
+
+    public List<Genotype> getMostCommonGenotype() {
+        List<Genotype> mostCommonGenotypes = new ArrayList<>();
+        int frequency = 0;
+        for (var entry: this.genotypeCounter.entrySet()) {
+            if ( entry.getValue() > frequency || mostCommonGenotypes.size() == 0) {
+                mostCommonGenotypes.clear();
+                mostCommonGenotypes.add(entry.getKey());
+                frequency = entry.getValue();
+            }
+            else if (entry.getValue() == frequency) {
+                mostCommonGenotypes.add(entry.getKey());
+            }
+        }
+
+        return mostCommonGenotypes;
     }
 
     public List<Animal> getStrongestAnimalsAt(Vector2d position) {
-        if (!this.isOccupiedByAnimal(position)) throw new IllegalArgumentException("No animals on this field");
+        if (!this.isOccupiedByAnimal(position, 1)) throw new IllegalArgumentException("No animals on this field");
 
         TreeSet<Animal> animalsOnPos = this.animals.get(position);
         List<Animal> strongestAnimals = new ArrayList<>();
@@ -103,7 +123,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public Animal[] getTwoStrongestAnimalsAt(Vector2d position) {
-        if (this.animals.get(position).size() < 2) throw new IllegalArgumentException("Less than 2 animals on this field");
+        if (this.isOccupiedByAnimal(position, 2)) throw new IllegalArgumentException("Less than 2 animals on this field");
 
         Iterator<Animal> animalsOnPos = this.animals.get(position).descendingIterator();
         Animal[] twoStrongestAnimals = new Animal[2];
@@ -127,12 +147,12 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         return this.plants.containsKey(position);
     }
 
-    public boolean isOccupiedByAnimal(Vector2d position) {
-        return this.animals.containsKey(position);
+    public boolean isOccupiedByAnimal(Vector2d position, int size) {
+        return (this.animals.containsKey(position) && this.animals.get(position).size() >= size);
     }
 
     public boolean isOccupied(Vector2d position) {
-        return isOccupiedByAnimal(position) || isOccupiedByPlant(position);
+        return isOccupiedByAnimal(position, 1) || isOccupiedByPlant(position);
     }
 
     public boolean isInJungle(Vector2d position) {
@@ -144,16 +164,18 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
     public void placeAnimal(Animal animal) {
         Vector2d animalPosition = animal.getPosition();
-        if (!isOccupiedByAnimal(animalPosition)) {
+        if (!isOccupiedByAnimal(animalPosition, 1)) {
             this.animals.put(animalPosition, new TreeSet<>((o1, o2) -> {
                 if (o1 == o2) return 0;
-                if (o1.getEnergy() != o2.getEnergy()) return Integer.compare(o1.getEnergy(), o2.getEnergy());
-                else return 1;  // if energy is the same, but animals are different, order doesn't matter
+                else if (o1.getEnergy() != o2.getEnergy()) return Integer.compare(o1.getEnergy(), o2.getEnergy());
+                else if (o1.getBornEra() != o2.getBornEra()) return Integer.compare(o1.getBornEra(), o2.getBornEra());
+                else return Integer.compare(o1.getGenotype().hashCode(), o2.getGenotype().hashCode());
             }));
         }
         this.animals.get(animalPosition).add(animal);
 
         this.animalNumber++;
+        this.sumEnergy += animal.getEnergy();
 
         if (this.genotypeCounter.get(animal.getGenotype()) == null) {
             this.genotypeCounter.put(animal.getGenotype(), 1);
@@ -164,8 +186,6 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public void placePlants() {
-        //rozwiazane trochę półśrodkiem, ale cóż
-
         int iterations = 0;
         Vector2d rndPosition1 = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
         while (this.isOccupied(rndPosition1) && iterations < 2 * this.jungleSide * this.jungleSide) {
@@ -214,6 +234,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     public void plantEaten(Vector2d position) {
         if (plants.containsKey(position)) {
         this.plants.remove(position);
+        this.plantNumber--;
         }
     }
 
@@ -221,7 +242,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     // TODO do usuniecia
     public String toString() {
         return String.format("""
-                        MAP ########
+                        MAP #############################################
                         MAP WIDTH: %d
                         MAP HEIGHT: %d
                         MAP START ENERGY: %d
@@ -230,8 +251,15 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
                         MAP JUNGLE CORNER: %s
                         MAP PLANT NUMBER: %d
                         MAP ANIMAL NUMBER: %d
+                        MAP AVERAGE ENERGY: %d
+                        MAP AVERAGE LIFESPAN: %d
+                        MAP AVERAGE CHILDREN NUMBER: %d
+                        MAP GENOTYPE COUNTER: %s
                         MAP ANIMALS: %s
                         MAP PLANTS: %s
-                        """, width, height, startEnergy, plantEnergy, jungleSide, jungleCorner, plantNumber, animalNumber, animals, plants);
+                        #################################################
+                        """, width, height, startEnergy, plantEnergy, jungleSide,
+                jungleCorner, plantNumber, animalNumber, this.getAverageEnergy(), this.getAverageLifespan(),
+                this.getAverageChildrenNumber(), this.getMostCommonGenotype(), animals, plants);
     }
 }

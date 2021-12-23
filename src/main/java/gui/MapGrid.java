@@ -34,7 +34,7 @@ public class MapGrid {
                 Vector2d vec = new Vector2d(j, i);
                 StackPane stack;
 
-                if (this.map.isOccupiedByAnimal(vec)) {
+                if (this.map.isOccupiedByAnimal(vec, 1)) {
                     Animal animal = this.map.getStrongestAnimalsAt(vec).get(0);
                     stack = MapElement.getImage(gridElemWidth, gridElemHeight, animal, this.map.startEnergy, this.map.isInJungle(vec));
                 }

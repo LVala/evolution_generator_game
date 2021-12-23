@@ -16,8 +16,4 @@ public class Plant implements IMapObject{
     public int getPlantEnergy() {
         return this.plantEnergy;
     }
-
-    public String toString() {
-        return String.format("|Position: %s|", this.position);
-    }
 }

@@ -1,19 +1,11 @@
 package gui;
 
+import evogen.FoldedMap;
 import evogen.IEngine;
-import evogen.NormalSimulationEngine;
-import javafx.geometry.Pos;
+import evogen.SimulationEngine;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class SimulationStage {
     public static final String fontName = "Tahoma";
@@ -27,7 +19,7 @@ public class SimulationStage {
         mainStage.setTitle("Evolution Generator");
 
         //TODO do usniecia
-        IEngine engine = new NormalSimulationEngine(20,20,10,10,10,0.3,10);
+        IEngine engine = new SimulationEngine(new FoldedMap(20,20,10,10,10,0.3,10), false);
 
         SimulationBox foldedSimulationBox = new SimulationBox(engine);
         SimulationBox boundedSimulationBox = new SimulationBox(engine);
