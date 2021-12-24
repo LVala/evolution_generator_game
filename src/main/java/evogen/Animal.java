@@ -11,7 +11,6 @@ public class Animal implements IMapObject {
     private int energy;
     private final Genotype genotype;
     private final AbstractWorldMap map;
-    private final List<IMapActionObserver> observers = new ArrayList<>();
 
     private final int bornEra;
     private int deathEra = -1;
@@ -31,8 +30,6 @@ public class Animal implements IMapObject {
         this.genotype = genotype;
         this.map = map;
         this.bornEra = bornEra;
-
-        this.addObserver(map);
     }
 
     // GETTERS AND SETTERS
@@ -80,34 +77,23 @@ public class Animal implements IMapObject {
         return this.childrenNumber;
     }
 
-    // OBSERVER
-
-    private void addObserver(IMapActionObserver observer) {
-        this.observers.add(observer);
-    }
-
-    private void plantEaten(Vector2d position) {
-        for (IMapActionObserver observer : this.observers) {
-            observer.plantEaten(position);
-        }
-    }
-
-    private void animalPositionChanged(Animal animal, Vector2d oldPosition) {
-        for (IMapActionObserver observer : this.observers) {
-            observer.animalPositionChanged(animal, oldPosition);
-        }
-    }
-
     // MAP ACTION METHODS
 
     public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) {
         this.energy += (plantEnergy/splitBetween);
-        plantEaten(position);
+        map.plantEaten(position);
 
         this.map.changeSumEnergy(plantEnergy);
     }
 
     public Animal reproduce(Animal other, int bornEra) {
+        if (!this.position.equals(other.position)) {
+            System.out.println(this);
+            System.out.println(other);
+            System.out.println(this.map.getAnimals().get(this.position));
+            throw new IllegalArgumentException("Animals to reproduce on different fields");
+        }
+
         boolean biggerTakesLeft = new Random().nextBoolean();
 
         Animal bigger, smaller;
@@ -176,12 +162,12 @@ public class Animal implements IMapObject {
         int rndGene = this.genotype.getRandomGene();
 
         if (rndGene == 0) {
-            this.position = this.map.getMovePosition(this.getPosition(), this.orientation);
-            animalPositionChanged(this, oldPosition);
+            this.position = this.map.getMovePosition(this.position, this.orientation);
+            map.animalPositionChanged(this, oldPosition);
         }
         else if (rndGene == 4) {
-            this.position = this.map.getMovePosition(this.getPosition(), this.orientation.opposite());
-            animalPositionChanged(this, oldPosition);
+            this.position = this.map.getMovePosition(this.position, this.orientation.opposite());
+            map.animalPositionChanged(this, oldPosition);
         }
         else {
             this.orientation = this.orientation.next(rndGene);
@@ -193,17 +179,17 @@ public class Animal implements IMapObject {
 
     // TO STRING
     // TODO do usunięcia
-    public String toString() {
-        return String.format("""
-                    Position: %s,
-                    Orientation: %s,
-                    Energy: %d,
-                    Genotype: %s,
-                    Born Era: %d,
-                    Death era: %d,
-                    Children Number: %d,
-                    Tracked Children Number: %d,
-                    Tracked descendants number: %d,
-                """, position, orientation, energy, genotype, bornEra, deathEra, childrenNumber, trackedChildrenNumber, trackedDescendantsNumber);
-    }
+//    public String toString() {
+//        return String.format("""
+//                    Position: %s,
+//                    Orientation: %s,
+//                    Energy: %d,
+//                    Genotype: %s,
+//                    Born Era: %d,
+//                    Death era: %d,
+//                    Children Number: %d,
+//                    Tracked Children Number: %d,
+//                    Tracked descendants number: %d,
+//                """, position, orientation, energy, genotype, bornEra, deathEra, childrenNumber, trackedChildrenNumber, trackedDescendantsNumber);
+//    }
 }

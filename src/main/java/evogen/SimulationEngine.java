@@ -1,18 +1,21 @@
 package evogen;
 
+import gui.SimulationBox;
+
 import java.util.*;
 
 public class SimulationEngine implements IEngine{
 
     private final AbstractWorldMap map;
-    private int era;
+    private SimulationBox simulationGuiBox;
+    private int era = 0;
     private final boolean ifMagic;
 
-    private final List<Integer> animals = new ArrayList<>();
-    private final List<Integer> plants = new ArrayList<>();
-    private final List<Integer> energy = new ArrayList<>();
-    private final List<Integer> lifespan = new ArrayList<>();
-    private final List<Integer> children = new ArrayList<>();
+    public final List<Integer> animals = new ArrayList<>();
+    public final List<Integer> plants = new ArrayList<>();
+    public final List<Integer> energy = new ArrayList<>();
+    public final List<Integer> lifespan = new ArrayList<>();
+    public final List<Integer> children = new ArrayList<>();
 
     public SimulationEngine(AbstractWorldMap map, boolean ifMagic) {
         this.map = map;
@@ -23,6 +26,18 @@ public class SimulationEngine implements IEngine{
         this.energy.add(map.getAverageEnergy());
         this.lifespan.add(map.getAverageLifespan());
         this.children.add(map.getAverageChildrenNumber());
+    }
+
+    public void setSimulationGuiBox(SimulationBox guiBox) {
+        this.simulationGuiBox = guiBox;
+    }
+
+    public AbstractWorldMap getMap() {
+        return this.map;
+    }
+
+    public int getEra() {
+        return this.era;
     }
 
     private void removeDeadAnimals() {
@@ -69,7 +84,7 @@ public class SimulationEngine implements IEngine{
             if (map.isOccupiedByAnimal(entry.getKey(), 2)) {
                 Animal[] twoStrongest = map.getTwoStrongestAnimalsAt(entry.getKey());
                 Animal child = twoStrongest[0].reproduce(twoStrongest[1], era);
-                map.placeAnimal(child);
+                map.placeAnimal(child, true);
             }
         }
     }
@@ -89,15 +104,15 @@ public class SimulationEngine implements IEngine{
                 // losuję tutaj w nieskończoność, bo albo jest dużo wolnych miejsc(bo 5 zwierzat) albo mała mapa
                 while (this.map.isOccupied(newPosition)) newPosition = Vector2d.getRandomVector(this.map.width, this.map.height);
                 Animal newAnimal = new Animal(newPosition, this.map.startEnergy, animal.getGenotype(), this.map, this.era);
-                map.placeAnimal(newAnimal);
+                map.placeAnimal(newAnimal, true);
             }
         }
     }
 
     public void run() {
         //TODO to na brudno
-
-        while (era < 5 && map.getAnimalNumber() > 0) {
+        System.out.println(this.map);
+        while (era < 30 && map.getAnimalNumber() > 0) {
             era++;
             removeDeadAnimals();
             moveAnimals();

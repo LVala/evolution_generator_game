@@ -18,37 +18,30 @@ public class SimulationBox {
     public static final String fontName = "Tahoma";
 
     public final HBox simulationBox = new HBox();
-    private Chart chart;
-    private SimulationInfoGrid simulationInfoGrid;
-    private MapGrid mapGrid;
-    private AnimalInfoGrid animalInfoGrid;
+    private final Chart chart;
+    private final SimulationInfoGrid simulationInfoGrid;
+    private final MapGrid mapGrid;
+    private final AnimalInfoGrid animalInfoGrid;
 
-    public SimulationBox(IEngine simulationEngine) {
+    public SimulationBox(SimulationEngine simulationEngine) {
 
-        //TODO do usuniecia, wyciagenia danych z engine
-        int era = 9;
-        List<Integer> animals = Arrays.asList(new Integer[]{5,7,4,6,5,7,6,5,4});
-        List<Integer> plants = Arrays.asList(new Integer[]{2,3,4,2,1,3,4,2,3});
-        List<Integer> energy = Arrays.asList(new Integer[]{30,35,34,36,37,40,39,37,38});
-        List<Integer> lifespan = Arrays.asList(new Integer[]{5,3,6,7,5,6,4,2,4});
-        List<Integer> children = Arrays.asList(new Integer[]{1,1,1,0,2,1,2,1,1});
+        this.chart = new Chart(simulationEngine.animals, simulationEngine.plants,
+                simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children);
+        this.chart.createChart(simulationEngine.getEra());
 
-        this.chart = new Chart(animals, plants, energy, lifespan, children);
-        this.chart.createChart(era);
-
-        this.simulationInfoGrid = new SimulationInfoGrid(animals, plants, energy, lifespan, children);
-        this.simulationInfoGrid.createSimulationInfoGrid(era);
+        this.simulationInfoGrid = new SimulationInfoGrid(simulationEngine.animals, simulationEngine.plants,
+                simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children);
+        this.simulationInfoGrid.createSimulationInfoGrid(simulationEngine.getEra());
 
         HBox buttons = createButtonsHBox();
 
-        //TODO do usuniecia
-        AbstractWorldMap map = new FoldedMap(50,50,10,10,10,0.3,10);
-        this.mapGrid = new MapGrid(map);
+        this.mapGrid = new MapGrid(simulationEngine.getMap());
         this.mapGrid.createMapGrid();
 
+        // TODO to do zmodernizowania
         this.animalInfoGrid = new AnimalInfoGrid();
         this.animalInfoGrid.createAnimalInfo(new Animal(new Vector2d(1,1), 3, Genotype.generateRandomGenotype(),
-                map, 0));
+                simulationEngine.getMap(), 0));
 
 
         VBox chartAndInfoBox = new VBox();

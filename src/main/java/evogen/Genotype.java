@@ -38,6 +38,10 @@ public class Genotype {
         this.genes = genes;
     }
 
+    public int[] getGenes() {
+        return this.genes;
+    }
+
     public String toString() {
         return Arrays.stream(this.genes).mapToObj(String::valueOf).collect(Collectors.joining(""));
     }
@@ -66,10 +70,5 @@ public class Genotype {
             if (this.genes[i] != ((Genotype) other).genes[i]) return false;
         }
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash((Object) this.genes);
     }
 }

@@ -1,5 +1,9 @@
 package gui;
 
+import evogen.AbstractWorldMap;
+import evogen.BoundedMap;
+import evogen.FoldedMap;
+import evogen.SimulationEngine;
 import javafx.application.Application;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -37,10 +41,10 @@ public class SettingsStage extends Application {
         // INPUT FIELDS
 
         Label widthLabel = new Label("Map width:");
-        TextField widthTextField = new TextField("100");
+        TextField widthTextField = new TextField("50");
 
         Label heightLabel = new Label("Map height:");
-        TextField heightTextField = new TextField("100");
+        TextField heightTextField = new TextField("50");
 
         Label startEnergyLabel = new Label("Animal start energy:");
         TextField startEnergyTextField = new TextField("100");
@@ -57,12 +61,15 @@ public class SettingsStage extends Application {
         Label initialAnimalsLabel = new Label("Initial number of animals:");
         TextField initialAnimalsTextField = new TextField("10");
 
-        Label[] labels = {widthLabel, heightLabel, startEnergyLabel, moveEnergyLabel, plantEnergyLabel,
-                jungleRatioLabel, initialAnimalsLabel};
-        TextField[] textFields = {widthTextField, heightTextField, startEnergyTextField, moveEnergyTextField,
-                plantEnergyTextField, jungleRatioTextField, initialAnimalsTextField};
+        Label eraLengthLabel = new Label("Era real time length (ms):");
+        TextField eraLengthTextField = new TextField("10");
 
-        for (int i = 0; i < 7; i++) {
+        Label[] labels = {widthLabel, heightLabel, startEnergyLabel, moveEnergyLabel, plantEnergyLabel,
+                jungleRatioLabel, initialAnimalsLabel, eraLengthLabel};
+        TextField[] textFields = {widthTextField, heightTextField, startEnergyTextField, moveEnergyTextField,
+                plantEnergyTextField, jungleRatioTextField, initialAnimalsTextField, eraLengthTextField};
+
+        for (int i = 0; i < 8; i++) {
             labels[i].setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
             grid.add(labels[i], 0, i+1);
             grid.add(textFields[i], 1, i+1);
@@ -72,7 +79,7 @@ public class SettingsStage extends Application {
 
         Label isMagicLabel = new Label("If simulation uses \"magic\" rule:");
         isMagicLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        grid.add(isMagicLabel, 0, 8, 2, 1);
+        grid.add(isMagicLabel, 0, 9, 2, 1);
         GridPane.setHalignment(isMagicLabel, HPos.CENTER);
 
         Label foldedLabel = new Label("Folded map");
@@ -89,8 +96,8 @@ public class SettingsStage extends Application {
         foldedHBox.getChildren().addAll(foldedLabel, foldedCheckBox);
         boundedHBox.getChildren().addAll(boundedLabel, boundedCheckBox);
 
-        grid.add(foldedHBox, 0, 9);
-        grid.add(boundedHBox, 1, 9);
+        grid.add(foldedHBox, 0, 10);
+        grid.add(boundedHBox, 1, 10);
 
         // BUTTON
 
@@ -102,7 +109,7 @@ public class SettingsStage extends Application {
             if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") &&
                     validate(startEnergyTextField, "[0-9]+") && validate(moveEnergyTextField, "[0-9]+") &&
                     validate(plantEnergyTextField, "[0-9]+") && validate(jungleRatioTextField, "[0-9][0-9]?|100") &&
-                    validate(initialAnimalsTextField, "[0-9]+")) {
+                    validate(initialAnimalsTextField, "[0-9]+") && validate(eraLengthTextField, "[0-9]+")) {
 
                 int width = Integer.parseInt(widthTextField.getText());
                 int height = Integer.parseInt(heightTextField.getText());
@@ -111,11 +118,18 @@ public class SettingsStage extends Application {
                 int plantEnergy = Integer.parseInt(plantEnergyTextField.getText());
                 double jungleRatio = (double) Integer.parseInt(jungleRatioTextField.getText())/100;
                 int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
+                int eraLength = Integer.parseInt(eraLengthTextField.getText());
                 boolean isMagicFolded = foldedCheckBox.isSelected();
                 boolean isMagicBounded = boundedCheckBox.isSelected();
 
-                SimulationStage simulationStage = new SimulationStage();
-                //width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals, isMagicFolded, isMagicBounded
+                AbstractWorldMap foldedMap = new FoldedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
+                AbstractWorldMap boundedMap = new BoundedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
+
+                SimulationEngine foldedEngine = new SimulationEngine(foldedMap, isMagicFolded);
+                SimulationEngine boundedEngine = new SimulationEngine(boundedMap, isMagicBounded);
+
+                SimulationStage simulationStage = new SimulationStage(foldedEngine, boundedEngine);
+                foldedEngine.run();
                 simulationStage.showMainStage();
             }
         });
@@ -123,7 +137,7 @@ public class SettingsStage extends Application {
         HBox hbBtn = new HBox(20);
         hbBtn.setAlignment(Pos.CENTER);
         hbBtn.getChildren().add(btn);
-        grid.add(hbBtn, 0, 11, 2, 1);
+        grid.add(hbBtn, 0, 12, 2, 1);
 
         return grid;
     }
@@ -146,7 +160,7 @@ public class SettingsStage extends Application {
         primaryStage.setTitle("Evolution Generator - Initial Settings");
 
         GridPane grid = createInputGrid();
-        Scene scene = new Scene(grid, 500, 600);
+        Scene scene = new Scene(grid, 500, 650);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
