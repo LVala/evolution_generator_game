@@ -7,7 +7,7 @@ import javafx.scene.chart.XYChart;
 import java.util.List;
 
 public class Chart {
-    public final LineChart<Number, Number> lineChart;
+    private final LineChart<Number, Number> lineChart;
 
     private final List<Integer> animals;
     private final List<Integer> plants;
@@ -15,61 +15,52 @@ public class Chart {
     private final List<Integer> lifespan;
     private final List<Integer> children;
 
+    private final XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
     public Chart(List<Integer> animals, List<Integer> plants, List<Integer> energy,
-                 List<Integer> lifespan, List<Integer> children) {
+                 List<Integer> lifespan, List<Integer> children, String chartName) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Era");
         this.lineChart = new LineChart<>(xAxis, yAxis);
+        this.lineChart.setTitle(chartName);
 
         this.animals = animals;
         this.plants = plants;
         this.energy = energy;
         this.lifespan = lifespan;
         this.children = children;
-    }
 
-    public XYChart.Series<Number, Number> createSeries(int era, List<Integer> data) {
-        // creates series for the chart
+        this.animalSeries.setName("Number of animals");
+        this.plantsSeries.setName("Number of plants");
+        this.energySeries.setName("Average energy");
+        this.lifespanSeries.setName("Average lifespan");
+        this.childrenSeries.setName("Average number of children");
 
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        this.updateChart(0);
 
-        for (int i = 0; i < era; i++) {
-            series.getData().add(new XYChart.Data<>(i + 1, data.get(i)));
-        }
-
-        return series;
-    }
-
-    public void createChart(int era) {
-
-        XYChart.Series<Number, Number> series1 = createSeries(era, this.animals);
-        series1.setName("Number of animals");
-
-        XYChart.Series<Number, Number> series2 = createSeries(era, this.plants);
-        series2.setName("Number of plants");
-
-        XYChart.Series<Number, Number> series3 = createSeries(era, this.energy);
-        series3.setName("Average energy");
-
-        XYChart.Series<Number, Number> series4 = createSeries(era, this.lifespan);
-        series4.setName("Average lifespan");
-
-        XYChart.Series<Number, Number> series5 = createSeries(era, this.children);
-        series5.setName("Average number of children");
-
-        this.lineChart.getData().add(series1);
-        this.lineChart.getData().add(series2);
-        this.lineChart.getData().add(series3);
-        this.lineChart.getData().add(series4);
-        this.lineChart.getData().add(series5);
+        this.lineChart.getData().add(animalSeries);
+        this.lineChart.getData().add(plantsSeries);
+        this.lineChart.getData().add(energySeries);
+        this.lineChart.getData().add(lifespanSeries);
+        this.lineChart.getData().add(childrenSeries);
 
         this.lineChart.setCreateSymbols(false);
     }
 
-    public void reloadChart(int era) {
-        this.lineChart.getData().clear();
-        createChart(era);
+    public LineChart<Number, Number> getChart() {
+        return this.lineChart;
+    }
+
+    public void updateChart(int era) {
+        this.animalSeries.getData().add(new XYChart.Data<>(era, animals.get(era)));
+        this.plantsSeries.getData().add(new XYChart.Data<>(era, plants.get(era)));
+        this.energySeries.getData().add(new XYChart.Data<>(era, energy.get(era)));
+        this.lifespanSeries.getData().add(new XYChart.Data<>(era, lifespan.get(era)));
+        this.childrenSeries.getData().add(new XYChart.Data<>(era, children.get(era)));
     }
 }

@@ -10,6 +10,7 @@ public class SimulationEngine implements IEngine{
     private SimulationBox simulationGuiBox;
     private int era = 0;
     private final boolean ifMagic;
+    private int magicClonings = 3;
 
     public final List<Integer> animals = new ArrayList<>();
     public final List<Integer> plants = new ArrayList<>();
@@ -21,11 +22,7 @@ public class SimulationEngine implements IEngine{
         this.map = map;
         this.ifMagic = ifMagic;
 
-        this.animals.add(map.getAnimalNumber());
-        this.plants.add(map.getPlantNumber());
-        this.energy.add(map.getAverageEnergy());
-        this.lifespan.add(map.getAverageLifespan());
-        this.children.add(map.getAverageChildrenNumber());
+        collectStats();
     }
 
     public void setSimulationGuiBox(SimulationBox guiBox) {
@@ -43,7 +40,7 @@ public class SimulationEngine implements IEngine{
     private void removeDeadAnimals() {
         List<Animal> toRemove = new ArrayList<>();  // to prevent ConcurrentModificationException
 
-        for (TreeSet<Animal> field : this.map.getAnimals().values()) {
+        for (List<Animal> field : this.map.getAnimals().values()) {
             for (Animal animal : field) {
                 if (animal.getEnergy() <= 0) {
                     toRemove.add(animal);
@@ -53,14 +50,14 @@ public class SimulationEngine implements IEngine{
 
         for (Animal animal : toRemove) {
             map.removeDeadAnimal(animal, this.era);
-            if (this.ifMagic && this.map.getAnimalNumber() <= 5) magicallyCloneAnimals();
+            if (this.ifMagic && this.magicClonings > 0 && this.map.getAnimalNumber() <= 5) magicallyCloneAnimals();
         }
     }
 
     private void moveAnimals() {
         List<Animal> toMove = new ArrayList<>();  // to prevent ConcurrentModificationException
 
-        for (TreeSet<Animal> field : this.map.getAnimals().values()) {
+        for (List<Animal> field : this.map.getAnimals().values()) {
             toMove.addAll(field);
         }
 
@@ -68,7 +65,7 @@ public class SimulationEngine implements IEngine{
     }
 
     private void eatPlants() {
-        for (Map.Entry<Vector2d, TreeSet<Animal>> entry : this.map.getAnimals().entrySet()) {
+        for (Map.Entry<Vector2d, List<Animal>> entry : this.map.getAnimals().entrySet()) {
             if (map.isOccupiedByPlant(entry.getKey())) {
                 List<Animal> strongest = map.getStrongestAnimalsAt(entry.getKey());
                 for (Animal animal : strongest) {
@@ -80,11 +77,13 @@ public class SimulationEngine implements IEngine{
     }
 
     private void reproduceAnimals() {
-        for (Map.Entry<Vector2d, TreeSet<Animal>> entry : this.map.getAnimals().entrySet()) {
+        for (Map.Entry<Vector2d, List<Animal>> entry : this.map.getAnimals().entrySet()) {
             if (map.isOccupiedByAnimal(entry.getKey(), 2)) {
                 Animal[] twoStrongest = map.getTwoStrongestAnimalsAt(entry.getKey());
-                Animal child = twoStrongest[0].reproduce(twoStrongest[1], era);
-                map.placeAnimal(child, true);
+                if (twoStrongest[0].getEnergy() >= 0.5 * map.startEnergy && twoStrongest[1].getEnergy() >= 0.5 * map.startEnergy) {
+                    Animal child = twoStrongest[0].reproduce(twoStrongest[1], era);
+                    map.placeAnimal(child, true);
+                }
             }
         }
     }
@@ -98,21 +97,24 @@ public class SimulationEngine implements IEngine{
     }
 
     private void magicallyCloneAnimals() {
-        for (TreeSet<Animal> field : this.map.getAnimals().values()) {
+        List<Animal> toAdd = new ArrayList<>();
+
+        for (List<Animal> field : this.map.getAnimals().values()) {
             for (Animal animal : field) {
                 Vector2d newPosition = Vector2d.getRandomVector(this.map.width, this.map.height);
                 // losuję tutaj w nieskończoność, bo albo jest dużo wolnych miejsc(bo 5 zwierzat) albo mała mapa
                 while (this.map.isOccupied(newPosition)) newPosition = Vector2d.getRandomVector(this.map.width, this.map.height);
                 Animal newAnimal = new Animal(newPosition, this.map.startEnergy, animal.getGenotype(), this.map, this.era);
-                map.placeAnimal(newAnimal, true);
+                toAdd.add(newAnimal);
             }
         }
+        for (Animal animal : toAdd) map.placeAnimal(animal, true);
+        this.magicClonings--;
     }
 
     public void run() {
         //TODO to na brudno
-        System.out.println(this.map);
-        while (era < 30 && map.getAnimalNumber() > 0) {
+        while (era < 2 && map.getAnimalNumber() > 0) {
             era++;
             removeDeadAnimals();
             moveAnimals();
@@ -120,7 +122,7 @@ public class SimulationEngine implements IEngine{
             reproduceAnimals();
             map.placePlants();
             collectStats();
-            System.out.println(this.map);
+            System.out.println(this.map.genotypeCounter);
             //TODO inform gui that map changed
         }
 

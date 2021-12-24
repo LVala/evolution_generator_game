@@ -55,14 +55,14 @@ public class SettingsStage extends Application {
         Label plantEnergyLabel = new Label("Plant energy:");
         TextField plantEnergyTextField = new TextField("35");
 
-        Label jungleRatioLabel = new Label("Jungle to steppe ratio (0-100%):");
-        TextField jungleRatioTextField = new TextField("30");
+        Label jungleRatioLabel = new Label("Jungle to steppe ratio (double):");
+        TextField jungleRatioTextField = new TextField("0.2");
 
         Label initialAnimalsLabel = new Label("Initial number of animals:");
         TextField initialAnimalsTextField = new TextField("10");
 
         Label eraLengthLabel = new Label("Era real time length (ms):");
-        TextField eraLengthTextField = new TextField("10");
+        TextField eraLengthTextField = new TextField("500");
 
         Label[] labels = {widthLabel, heightLabel, startEnergyLabel, moveEnergyLabel, plantEnergyLabel,
                 jungleRatioLabel, initialAnimalsLabel, eraLengthLabel};
@@ -105,33 +105,83 @@ public class SettingsStage extends Application {
         btn.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
         btn.setPrefSize(250,60);
 
+        // BUTTON ON ACTION AND VALIDATION
+
         btn.setOnAction(event -> {
-            if (validate(widthTextField, "[0-9]+") && validate(heightTextField, "[0-9]+") &&
-                    validate(startEnergyTextField, "[0-9]+") && validate(moveEnergyTextField, "[0-9]+") &&
-                    validate(plantEnergyTextField, "[0-9]+") && validate(jungleRatioTextField, "[0-9][0-9]?|100") &&
-                    validate(initialAnimalsTextField, "[0-9]+") && validate(eraLengthTextField, "[0-9]+")) {
-
-                int width = Integer.parseInt(widthTextField.getText());
-                int height = Integer.parseInt(heightTextField.getText());
-                int startEnergy = Integer.parseInt(startEnergyTextField.getText());
-                int moveEnergy = Integer.parseInt(moveEnergyTextField.getText());
-                int plantEnergy = Integer.parseInt(plantEnergyTextField.getText());
-                double jungleRatio = (double) Integer.parseInt(jungleRatioTextField.getText())/100;
-                int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
-                int eraLength = Integer.parseInt(eraLengthTextField.getText());
-                boolean isMagicFolded = foldedCheckBox.isSelected();
-                boolean isMagicBounded = boundedCheckBox.isSelected();
-
-                AbstractWorldMap foldedMap = new FoldedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
-                AbstractWorldMap boundedMap = new BoundedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
-
-                SimulationEngine foldedEngine = new SimulationEngine(foldedMap, isMagicFolded);
-                SimulationEngine boundedEngine = new SimulationEngine(boundedMap, isMagicBounded);
-
-                SimulationStage simulationStage = new SimulationStage(foldedEngine, boundedEngine);
-                foldedEngine.run();
-                simulationStage.showMainStage();
+            for (TextField textField : textFields) {
+                if (textField == jungleRatioTextField) {
+                    if (isNotValid(textField, "[0-9]+\\.[0-9]+")) return;
+                }
+                else {
+                    if (isNotValid(textField, "[0-9]+")) return;
+                }
             }
+
+            int width = Integer.parseInt(widthTextField.getText());
+            if (width < 10) {
+                widthTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                widthTextField.setText("minimum value: 10");
+                return;
+            }
+            int height = Integer.parseInt(heightTextField.getText());
+            if (height < 10) {
+                heightTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                heightTextField.setText("minimum value: 10");
+                return;
+            }
+            int startEnergy = Integer.parseInt(startEnergyTextField.getText());
+            if (startEnergy < 1) {
+                startEnergyTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                startEnergyTextField.setText("minimum value: 1");
+                return;
+            }
+            int moveEnergy = Integer.parseInt(moveEnergyTextField.getText());
+            if (moveEnergy < 1) {
+                moveEnergyTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                moveEnergyTextField.setText("minimum value: 1");
+                return;
+            }
+            int plantEnergy = Integer.parseInt(plantEnergyTextField.getText());
+            if (plantEnergy < 1) {
+                plantEnergyTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                plantEnergyTextField.setText("minimum value: 1");
+                return;
+            }
+            double jungleRatio = Double.parseDouble(jungleRatioTextField.getText());
+            if (jungleRatio <= 0) {
+                jungleRatioTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                jungleRatioTextField.setText("value between 0 and 1 exclusively");
+                return;
+            }
+            int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
+            if (initialAnimals < 10 && initialAnimals > width * height) {
+                initialAnimalsTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                initialAnimalsTextField.setText("value between 10 and area of the map (height * width)");
+                return;
+            }
+            int eraLength = Integer.parseInt(eraLengthTextField.getText());
+            if (eraLength < 100) {
+                initialAnimalsTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                initialAnimalsTextField.setText("minimum value: 100");
+                return;
+            }
+            boolean isMagicFolded = foldedCheckBox.isSelected();
+            boolean isMagicBounded = boundedCheckBox.isSelected();
+
+
+
+            AbstractWorldMap foldedMap = new FoldedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
+            AbstractWorldMap boundedMap = new BoundedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
+
+            SimulationEngine foldedEngine = new SimulationEngine(foldedMap, isMagicFolded);
+            SimulationEngine boundedEngine = new SimulationEngine(boundedMap, isMagicBounded);
+
+            foldedEngine.run();
+            boundedEngine.run();
+            SimulationStage simulationStage = new SimulationStage(foldedEngine, boundedEngine);
+
+            simulationStage.showMainStage();
+
         });
 
         HBox hbBtn = new HBox(20);
@@ -142,19 +192,21 @@ public class SettingsStage extends Application {
         return grid;
     }
 
-    public boolean validate(TextField textField, String regex) {
+    public boolean isNotValid(TextField textField, String regex) {
         // checks if TextField input is valid based on regex
 
         if (!textField.getText().matches(regex)){
             textField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
             textField.setText("invalid input");
-            return false;
+            return true;
         }
         else {
             textField.setStyle(null);
-            return true;
+            return false;
         }
     }
+
+
 
     public  void start(Stage primaryStage) {
         primaryStage.setTitle("Evolution Generator - Initial Settings");

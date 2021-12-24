@@ -1,9 +1,13 @@
 package gui;
 
+import evogen.Genotype;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
@@ -21,9 +25,8 @@ public class SimulationInfoGrid {
     private final List<Integer> lifespan;
     private final List<Integer> children;
 
-
-    public SimulationInfoGrid(List<Integer> animals, List<Integer> plants,
-                              List<Integer> energy, List<Integer> lifespan, List<Integer> children) {
+    public SimulationInfoGrid(List<Integer> animals, List<Integer> plants, List<Integer> energy,
+                              List<Integer> lifespan, List<Integer> children) {
         this.simulationInfoGrid.setAlignment(Pos.TOP_CENTER);
         this.simulationInfoGrid.setHgap(20);
         this.simulationInfoGrid.setVgap(10);
@@ -41,6 +44,7 @@ public class SimulationInfoGrid {
         Label curEnergyLabel = new Label("Average energy level:");
         Label curLifespanLabel = new Label("Average animal lifespan:");
         Label curChildrenLabel = new Label("Average number of children:");
+        Label curMostCommonGenotype = new Label("Most common genotypes: ");
 
         Label[] labels = {curEraLabel, curAnimalsLabel, curPlantsLabel, curEnergyLabel, curLifespanLabel, curChildrenLabel};
 
@@ -48,9 +52,11 @@ public class SimulationInfoGrid {
             labels[i].setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
             this.simulationInfoGrid.add(labels[i], 0, i);
         }
+        curMostCommonGenotype.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        this.simulationInfoGrid.add(curMostCommonGenotype, 0, 6, 2, 1);
     }
 
-    public void createSimulationInfoGrid(int era) {
+    public void createSimulationInfoGrid(int era, List<Genotype> mostCommonGenotypes) {
 
         Label curEraTextValue = new Label(String.format("%d", era));
         Label curAnimalsTextValue = new Label(String.format("%d", animals.get(animals.size() - 1)));
@@ -66,9 +72,15 @@ public class SimulationInfoGrid {
             values[i].setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
             this.simulationInfoGrid.add(values[i], 1, i);
         }
-    }
 
-    public void reloadSimulationInfoGrid(int era) {
+        VBox genotypesBox = new VBox();
+        for (Genotype genotype : mostCommonGenotypes) {
+            genotypesBox.getChildren().add(new Label(genotype.toString()));
+        }
 
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(genotypesBox);
+
+        this.simulationInfoGrid.add(scrollPane, 0, 7, 2, 1);
     }
 }

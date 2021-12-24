@@ -27,7 +27,7 @@ public class SimulationStage {
         HBox mainHBox = new HBox(10);
         mainHBox.getChildren().addAll(foldedSimulationBox.simulationBox, boundedSimulationBox.simulationBox);
 
-        Scene scene = new Scene(mainHBox, 1500, 700);
+        Scene scene = new Scene(mainHBox, 1500, 750);
         mainStage.setScene(scene);
         mainStage.show();
     }

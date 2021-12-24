@@ -3,9 +3,8 @@ package evogen;
 import java.util.*;
 
 abstract public class AbstractWorldMap implements IMapActionObserver {
-    protected final Map<Vector2d, TreeSet<Animal>> animals = new HashMap<>();
+    protected final Map<Vector2d, List<Animal>> animals = new HashMap<>();
     protected final Map<Vector2d, Plant> plants = new HashMap<>();
-    protected final List<Animal> deadAnimals = new ArrayList<>(); // TODO nie wiem czy to potrzebne
 
     public final int width;
     public final int height;
@@ -18,9 +17,10 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     protected final Vector2d jungleCorner;  // lower left jungle corner, inclusive
 
     protected final Map<Genotype, Integer> genotypeCounter = new HashMap<>();
+    protected int deadAnimalsNumber = 0; //TODO zaimplementować
     protected int plantNumber = 0;
     protected int animalNumber = 0;
-    protected int sumEnergy;
+    protected int sumEnergy = 0;
     protected int sumLifespan = 0;
     protected int sumChildrenNumber = 0;
 
@@ -57,9 +57,11 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
     // GETTERS AND SETTERS
 
-    abstract Vector2d getMovePosition(Vector2d animalPosition, MapDirection direction);
+    public abstract Vector2d getMovePosition(Vector2d animalPosition, MapDirection direction);
 
-    public Map<Vector2d, TreeSet<Animal>> getAnimals() {
+    public abstract String getMapName();
+
+    public Map<Vector2d, List<Animal>> getAnimals() {
         return this.animals;
     }
 
@@ -68,8 +70,8 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public int getAverageLifespan() {
-        if (this.deadAnimals.size() == 0) return -1;
-        return this.sumLifespan/this.deadAnimals.size();
+        if (this.deadAnimalsNumber == 0) return -1;
+        return this.sumLifespan/this.deadAnimalsNumber;
     }
 
     public int getAverageEnergy() {
@@ -86,10 +88,6 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         return this.animalNumber;
     }
 
-    public int getPlantNumber() {
-        return this.plantNumber;
-    }
-
     public List<Genotype> getMostCommonGenotype() {
         List<Genotype> mostCommonGenotypes = new ArrayList<>();
         int frequency = 0;
@@ -103,20 +101,33 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
                 mostCommonGenotypes.add(entry.getKey());
             }
         }
-
         return mostCommonGenotypes;
+    }
+
+    public Animal getStrongestAnimalAt(Vector2d position) {
+        Animal strongestAnimal = null;
+
+        for (Animal animal : this.animals.get(position)) {
+            if (strongestAnimal == null || animal.getEnergy() > strongestAnimal.getEnergy()) {
+                strongestAnimal = animal;
+            }
+        }
+        return strongestAnimal;
     }
 
     public List<Animal> getStrongestAnimalsAt(Vector2d position) {
         if (!this.isOccupiedByAnimal(position, 1)) throw new IllegalArgumentException("No animals on this field");
 
-        TreeSet<Animal> animalsOnPos = this.animals.get(position);
         List<Animal> strongestAnimals = new ArrayList<>();
 
-        for (Animal animal : animalsOnPos.descendingSet()) {
-            if (animal.getEnergy() == animalsOnPos.last().getEnergy()) {
+        for (Animal animal : this.animals.get(position)) {
+            if (strongestAnimals.size() == 0 || animal.getEnergy() > strongestAnimals.get(0).getEnergy()) {
+                strongestAnimals.clear();
                 strongestAnimals.add(animal);
-            } else break;
+            }
+            else if (animal.getEnergy() == strongestAnimals.get(0).getEnergy()) {
+                strongestAnimals.add(animal);
+            }
         }
 
          return strongestAnimals;
@@ -125,12 +136,20 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     public Animal[] getTwoStrongestAnimalsAt(Vector2d position) {
         if (!this.isOccupiedByAnimal(position, 2)) throw new IllegalArgumentException("Less than 2 animals on this field");
 
-        Iterator<Animal> animalsOnPos = this.animals.get(position).descendingIterator();
-        Animal[] twoStrongestAnimals = new Animal[2];
-        twoStrongestAnimals[0] = animalsOnPos.next();
-        twoStrongestAnimals[1] = animalsOnPos.next();
+        Animal fstStrongest = null;
+        Animal sndStrongest = null;
 
-        return twoStrongestAnimals;
+        for (Animal animal : this.animals.get(position)) {
+            if (fstStrongest == null || animal.getEnergy() > fstStrongest.getEnergy()) {
+                sndStrongest = fstStrongest;
+                fstStrongest = animal;
+            }
+            else if (sndStrongest == null || animal.getEnergy() > sndStrongest.getEnergy()) {
+                sndStrongest = animal;
+            }
+        }
+
+        return new Animal[]{fstStrongest, sndStrongest};
     }
 
     public void changeSumEnergy(int energy) {
@@ -164,12 +183,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
     public void placeAnimal(Animal animal, boolean firstTime) {
         if (!isOccupiedByAnimal(animal.getPosition(), 1)) {
-            this.animals.put(animal.getPosition(), new TreeSet<>((o1, o2) -> {
-                if (o1 == o2) return 0;
-                else if (o1.getEnergy() != o2.getEnergy()) return Integer.compare(o1.getEnergy(), o2.getEnergy());
-                else if (o1.getBornEra() != o2.getBornEra()) return Integer.compare(o1.getBornEra(), o2.getBornEra());
-                else return Integer.compare(Arrays.hashCode(o1.getGenotype().getGenes()), Arrays.hashCode(o2.getGenotype().getGenes()));
-            }));
+            this.animals.put(animal.getPosition(), new LinkedList<>());
         }
         this.animals.get(animal.getPosition()).add(animal);
 
@@ -215,12 +229,13 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         this.animals.get(animal.getPosition()).remove(animal);
         if (this.animals.get(animal.getPosition()).isEmpty()) this.animals.remove(animal.getPosition());
         animal.setDeathEra(era);
-        this.deadAnimals.add(animal);
 
+        this.deadAnimalsNumber++;
         this.sumLifespan += animal.getDeathEra() - animal.getBornEra();
         this.sumChildrenNumber -= animal.getChildrenNumber();
         this.animalNumber--;
         this.genotypeCounter.merge(animal.getGenotype(), 1, (a, b) -> a - b);
+        if (this.genotypeCounter.get(animal.getGenotype()) == 0) this.genotypeCounter.remove(animal.getGenotype());
     }
 
     // OBSERVER

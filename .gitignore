@@ -14,3 +14,5 @@ test-splits/
 # IDEA
 # ----
 .idea
+
+*.csv

@@ -61,7 +61,6 @@ public class Animal implements IMapObject {
     }
 
     public int getDeathEra() {
-        // -1 means that animal is alive
         return this.deathEra;
     }
 
@@ -81,19 +80,12 @@ public class Animal implements IMapObject {
 
     public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) {
         this.energy += (plantEnergy/splitBetween);
-        map.plantEaten(position);
 
+        map.plantEaten(position);
         this.map.changeSumEnergy(plantEnergy);
     }
 
     public Animal reproduce(Animal other, int bornEra) {
-        if (!this.position.equals(other.position)) {
-            System.out.println(this);
-            System.out.println(other);
-            System.out.println(this.map.getAnimals().get(this.position));
-            throw new IllegalArgumentException("Animals to reproduce on different fields");
-        }
-
         boolean biggerTakesLeft = new Random().nextBoolean();
 
         Animal bigger, smaller;
@@ -179,17 +171,17 @@ public class Animal implements IMapObject {
 
     // TO STRING
     // TODO do usunięcia
-//    public String toString() {
-//        return String.format("""
-//                    Position: %s,
-//                    Orientation: %s,
-//                    Energy: %d,
-//                    Genotype: %s,
-//                    Born Era: %d,
-//                    Death era: %d,
-//                    Children Number: %d,
-//                    Tracked Children Number: %d,
-//                    Tracked descendants number: %d,
-//                """, position, orientation, energy, genotype, bornEra, deathEra, childrenNumber, trackedChildrenNumber, trackedDescendantsNumber);
-//    }
+    public String toString() {
+        return String.format("""
+                    Position: %s,
+                    Orientation: %s,
+                    Energy: %d,
+                    Genotype: %s,
+                    Born Era: %d,
+                    Death era: %d,
+                    Children Number: %d,
+                    Tracked Children Number: %d,
+                    Tracked descendants number: %d,
+                """, position, orientation, energy, genotype, bornEra, deathEra, childrenNumber, trackedChildrenNumber, trackedDescendantsNumber);
+    }
 }

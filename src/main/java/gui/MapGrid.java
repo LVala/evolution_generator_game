@@ -31,19 +31,19 @@ public class MapGrid {
 
         for (int i = 0; i < this.map.height; i++) {
             for (int j = 0; j < this.map.width; j++) {
-                Vector2d vec = new Vector2d(j, i);
+                Vector2d position = new Vector2d(j, i);
                 StackPane stack;
 
-                if (this.map.isOccupiedByAnimal(vec, 1)) {
-                    Animal animal = this.map.getStrongestAnimalsAt(vec).get(0);
-                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, animal, this.map.startEnergy, this.map.isInJungle(vec));
+                if (this.map.isOccupiedByAnimal(position, 1)) {
+                    Animal animal = this.map.getStrongestAnimalAt(position);
+                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, animal, this.map.startEnergy, this.map.isInJungle(position));
                 }
-                else if (this.map.isOccupiedByPlant(vec)) {
-                    Plant plant = this.map.getPlantAt(vec);
-                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, plant, this.map.startEnergy, this.map.isInJungle(vec));
+                else if (this.map.isOccupiedByPlant(position)) {
+                    Plant plant = this.map.getPlantAt(position);
+                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, plant, this.map.startEnergy, this.map.isInJungle(position));
                 }
                 else {
-                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, null, this.map.startEnergy, this.map.isInJungle(vec));
+                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, null, this.map.startEnergy, this.map.isInJungle(position));
                 }
                 this.mapGrid.add(stack, j, i);
             }
