@@ -67,7 +67,34 @@ public class MapElement {
             if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
             animal.setIfTracked(true);
             animalInfoGrid.createAnimalInfo(animal);
-            System.out.println("TRACKED ANIMAL: " + animal);
+        });
+
+        return stack;
+    }
+
+    public StackPane getHighlightedAnimal(Animal animal, boolean isJungle) {
+        StackPane stack = new StackPane();
+        stack.setBorder(new Border(new BorderStroke(Color.web("0x000000"),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.4))));
+
+        Rectangle rec = new Rectangle();
+        rec.setHeight(this.height);
+        rec.setWidth(this.width);
+
+        if (isJungle) rec.setFill(Color.web("0x88a464"));
+        else rec.setFill(Color.web("0xd8bca4"));
+        stack.getChildren().add(rec);
+
+        Circle circle = new Circle();
+        circle.setRadius(Math.min(height, width) * 0.3);
+        circle.setFill(Color.web("0x03fce8"));
+        circle.setStroke(Color.web("0x03fce8"));
+        stack.getChildren().add(circle);
+
+        stack.setOnMouseClicked(event -> {
+            if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
+            animal.setIfTracked(true);
+            animalInfoGrid.createAnimalInfo(animal);
         });
 
         return stack;

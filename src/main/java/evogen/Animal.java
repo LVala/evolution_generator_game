@@ -168,20 +168,4 @@ public class Animal implements IMapObject {
         this.map.changeSumEnergy((-1) * Math.min(moveEnergy, this.energy));
         this.energy = Math.max(this.energy - moveEnergy, 0);
     }
-
-    // TO STRING
-    // TODO do usunięcia
-    public String toString() {
-        return String.format("""
-                    Position: %s,
-                    Orientation: %s,
-                    Energy: %d,
-                    Genotype: %s,
-                    Born Era: %d,
-                    Death era: %d,
-                    Children Number: %d,
-                    Tracked Children Number: %d,
-                    Tracked descendants number: %d,
-                """, position, orientation, energy, genotype, bornEra, deathEra, childrenNumber, trackedChildrenNumber, trackedDescendantsNumber);
-    }
 }

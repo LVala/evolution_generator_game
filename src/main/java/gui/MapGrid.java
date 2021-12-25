@@ -1,19 +1,15 @@
 package gui;
 
-import evogen.AbstractWorldMap;
-import evogen.Animal;
-import evogen.Plant;
-import evogen.Vector2d;
+import evogen.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
+import java.util.List;
+
 public class MapGrid {
     public final GridPane mapGrid = new GridPane();
-
-    private final int gridElemHeight;
-    private final int gridElemWidth;
 
     private final AbstractWorldMap map;
     private final MapElement mapElement;
@@ -22,20 +18,23 @@ public class MapGrid {
         this.mapGrid.setAlignment(Pos.TOP_CENTER);
         this.mapGrid.setPadding(new Insets(25, 25, 10, 10));
 
-        this.gridElemHeight = 300/map.height;
-        this.gridElemWidth = 300/map.width;
+        int gridElemHeight = 300 / map.height;
+        int gridElemWidth = 300 / map.width;
 
         this.map = map;
         this.mapElement = new MapElement(gridElemWidth, gridElemHeight, this.map.startEnergy, animalInfoGrid);
     }
 
-    public void createMapGrid() {
+    public void updateMapGrid() {
 
         for (int i = 0; i < this.map.height; i++) {
             for (int j = 0; j < this.map.width; j++) {
                 Vector2d position = new Vector2d(j, i);
                 StackPane stack;
-
+                int finalI = i;
+                int finalJ = j;
+                this.mapGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == finalI && GridPane.getColumnIndex(node) == finalJ);
+                //TODO optymalizacja
                 if (this.map.isOccupiedByAnimal(position, 1)) {
                     Animal animal = this.map.getStrongestAnimalAt(position);
                     stack = mapElement.getImage(animal, this.map.isInJungle(position));
@@ -48,6 +47,24 @@ public class MapGrid {
                     stack = mapElement.getImage(null, this.map.isInJungle(position));
                 }
                 this.mapGrid.add(stack, j, i);
+            }
+        }
+    }
+
+    public void highlightMostCommonGenotype(List<Genotype> mostCommonGenotypes) {
+        for (int i = 0; i < this.map.height; i++) {
+            for (int j = 0; j < this.map.width; j++) {
+                Vector2d position = new Vector2d(j, i);
+                int finalI = i;
+                int finalJ = j;
+                if (this.map.isOccupiedByAnimal(position, 1)) {
+                    Animal animal = this.map.getStrongestAnimalAt(position);
+                    if (mostCommonGenotypes.contains(animal.getGenotype())) {
+                        this.mapGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == finalI && GridPane.getColumnIndex(node) == finalJ);
+                        StackPane stack = mapElement.getHighlightedAnimal(animal, this.map.isInJungle(position));
+                        this.mapGrid.add(stack, j, i);
+                    }
+                }
             }
         }
     }

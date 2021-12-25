@@ -1,26 +1,31 @@
 package evogen;
 
 import gui.SimulationBox;
+import javafx.application.Platform;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SimulationEngine implements IEngine{
+public class SimulationEngine implements IEngine, Runnable{
 
     private final AbstractWorldMap map;
     private SimulationBox simulationGuiBox;
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final int delay;
     private int era = 0;
     private final boolean ifMagic;
     private int magicClonings = 3;
 
-    public final List<Integer> animals = new ArrayList<>();
-    public final List<Integer> plants = new ArrayList<>();
-    public final List<Integer> energy = new ArrayList<>();
-    public final List<Integer> lifespan = new ArrayList<>();
-    public final List<Integer> children = new ArrayList<>();
+    public final List<Integer> animals = new LinkedList<>();
+    public final List<Integer> plants = new LinkedList<>();
+    public final List<Integer> energy = new LinkedList<>();
+    public final List<Integer> lifespan = new LinkedList<>();
+    public final List<Integer> children = new LinkedList<>();
 
-    public SimulationEngine(AbstractWorldMap map, boolean ifMagic) {
+    public SimulationEngine(AbstractWorldMap map, boolean ifMagic, int delay) {
         this.map = map;
         this.ifMagic = ifMagic;
+        this.delay = delay;
 
         collectStats();
     }
@@ -35,6 +40,10 @@ public class SimulationEngine implements IEngine{
 
     public int getEra() {
         return this.era;
+    }
+
+    public int getDelay() {
+        return this.delay;
     }
 
     private void removeDeadAnimals() {
@@ -73,7 +82,6 @@ public class SimulationEngine implements IEngine{
                 }
             }
         }
-
     }
 
     private void reproduceAnimals() {
@@ -89,8 +97,8 @@ public class SimulationEngine implements IEngine{
     }
 
     private void collectStats() {
-        this.animals.add(this.map.animalNumber);
-        this.plants.add(this.map.plantNumber);
+        this.animals.add(this.map.getAnimalNumber());
+        this.plants.add(this.map.getPlantNumber());
         this.energy.add(this.map.getAverageEnergy());
         this.lifespan.add(this.map.getAverageLifespan());
         this.children.add(this.map.getAverageChildrenNumber());
@@ -110,21 +118,17 @@ public class SimulationEngine implements IEngine{
         }
         for (Animal animal : toAdd) map.placeAnimal(animal, true);
         this.magicClonings--;
+        Platform.runLater(() -> simulationGuiBox.magicSimPopup(this.magicClonings));
     }
 
     public void run() {
-        //TODO to na brudno
-        while (era < 2 && map.getAnimalNumber() > 0) {
-            era++;
-            removeDeadAnimals();
-            moveAnimals();
-            eatPlants();
-            reproduceAnimals();
-            map.placePlants();
-            collectStats();
-            System.out.println(this.map.genotypeCounter);
-            //TODO inform gui that map changed
-        }
-
+        era++;
+        removeDeadAnimals();
+        moveAnimals();
+        eatPlants();
+        reproduceAnimals();
+        map.placePlants();
+        collectStats();
+        Platform.runLater(() -> simulationGuiBox.reloadSimulationBox());
     }
 }

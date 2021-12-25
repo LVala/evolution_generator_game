@@ -4,62 +4,78 @@ import evogen.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class SimulationBox {
     public static final String fontName = "Tahoma";
 
     private final SimulationEngine simulationEngine;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private Future<?> future;
+    private final Stage parentWindow;
     public final HBox simulationBox = new HBox();
     private final Chart chart;
     private final SimulationInfoGrid simulationInfoGrid;
     private final MapGrid mapGrid;
-    private final AnimalInfoGrid animalInfoGrid;
 
-    private final boolean isStopped = false;
-    private Animal trackedAnimal; // TODO
+    private boolean isStopped = true;
 
-    public SimulationBox(SimulationEngine simulationEngine) {
-
+    public SimulationBox(SimulationEngine simulationEngine, Stage parentWindow) {
+        this.parentWindow = parentWindow;
         this.simulationEngine = simulationEngine;
         this.chart = new Chart(simulationEngine.animals, simulationEngine.plants,
                 simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children, simulationEngine.getMap().getMapName());
 
         this.simulationInfoGrid = new SimulationInfoGrid(simulationEngine.animals, simulationEngine.plants,
                 simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children);
-        this.simulationInfoGrid.createSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotype());
+        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotype());
 
-        HBox buttons = createButtonsHBox();
+        HBox leftButtons = createLeftButtonsHBox();
 
-        this.animalInfoGrid = new AnimalInfoGrid();
+        AnimalInfoGrid animalInfoGrid = new AnimalInfoGrid();
 
-        this.mapGrid = new MapGrid(simulationEngine.getMap(), this.animalInfoGrid);
-        this.mapGrid.createMapGrid();
+        this.mapGrid = new MapGrid(simulationEngine.getMap(), animalInfoGrid);
+        this.mapGrid.updateMapGrid();
+
+        HBox rightButtons = createRightButtonHBox();
 
         VBox chartAndInfoBox = new VBox();
         chartAndInfoBox.setPadding(new Insets(10, 10, 10, 10));
-        chartAndInfoBox.getChildren().addAll(this.chart.getChart(), this.simulationInfoGrid.simulationInfoGrid, buttons);
+        chartAndInfoBox.getChildren().addAll(this.chart.getChart(), this.simulationInfoGrid.simulationInfoGrid, leftButtons);
 
         VBox mapAndAnimalInfoBox = new VBox();
-        mapAndAnimalInfoBox.getChildren().addAll(this.mapGrid.mapGrid, MapElement.createMapLegend(), this.animalInfoGrid.animalInfoGrid);
+        mapAndAnimalInfoBox.getChildren().addAll(this.mapGrid.mapGrid, MapElement.createMapLegend(), animalInfoGrid.animalInfoGrid, rightButtons);
 
         this.simulationBox.getChildren().addAll(chartAndInfoBox, mapAndAnimalInfoBox);
     }
 
-    public void reloadSimulationBox() {
-        //TODO napisca ta metode
+    public ScheduledExecutorService getExecutor() {
+        return this.executor;
     }
 
-    public HBox createButtonsHBox() {
-        Button stopStart = new Button("STOP");
+    public void reloadSimulationBox() {
+        this.chart.updateChart(simulationEngine.getEra());
+        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotype());
+        this.mapGrid.updateMapGrid();
+    }
+
+    private HBox createLeftButtonsHBox() {
+        Button stopStart = new Button("START");
         stopStart.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
         stopStart.setPrefSize(200,45);
         HBox hbStopStart = new HBox(30);
@@ -67,7 +83,16 @@ public class SimulationBox {
         hbStopStart.getChildren().add(stopStart);
 
         stopStart.setOnAction(event -> {
-            //TODO stop start simulation
+            if (isStopped) {
+                this.future = this.executor.scheduleAtFixedRate(this.simulationEngine, 0, this.simulationEngine.getDelay(), TimeUnit.MILLISECONDS);
+                this.isStopped = false;
+                stopStart.setText("STOP");
+            }
+            else {
+                future.cancel(true);
+                this.isStopped = true;
+                stopStart.setText("START");
+            }
         });
 
 
@@ -86,11 +111,39 @@ public class SimulationBox {
             }
         });
 
-
         HBox buttonHBox = new HBox(10);
         buttonHBox.getChildren().addAll(hbToCsv, hbStopStart);
         buttonHBox.setAlignment(Pos.CENTER);
         return buttonHBox;
+    }
+
+    private HBox createRightButtonHBox() {
+        Button showGeno = new Button("Show most common genotype");
+
+        showGeno.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
+        showGeno.setPrefSize(400,45);
+        HBox hbButton = new HBox(30);
+        hbButton.setAlignment(Pos.CENTER);
+        hbButton.getChildren().add(showGeno);
+
+        showGeno.setOnAction(event -> {
+            if (this.isStopped) {
+                this.mapGrid.highlightMostCommonGenotype(simulationEngine.getMap().getMostCommonGenotype());
+            }
+        });
+
+        return hbButton;
+    }
+
+    public void magicSimPopup(int cloningsLeft) {
+        Popup popup = new Popup();
+        String mapName = this.simulationEngine.getMap().getMapName();
+        Label label = new Label(String.format("Animals on %s were magically cloned! Clonings left: %d", mapName, cloningsLeft));
+        label.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
+        label.setStyle(" -fx-background-color: white; -fx-border-color: black");
+        popup.getContent().add(label);
+        popup.setAutoHide(true);
+        popup.show(this.parentWindow);
     }
 
     private void writeToFileAsCSV() throws IOException {

@@ -37,6 +37,7 @@ public class Vector2d {
 
     // METHODS NEEDED TO STORE IN HASHMAP
 
+    @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof Vector2d that)) return false;

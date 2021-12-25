@@ -161,27 +161,23 @@ public class SettingsStage extends Application {
             }
             int eraLength = Integer.parseInt(eraLengthTextField.getText());
             if (eraLength < 100) {
-                initialAnimalsTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                initialAnimalsTextField.setText("minimum value: 100");
+                eraLengthTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                eraLengthTextField.setText("minimum value: 100");
                 return;
             }
             boolean isMagicFolded = foldedCheckBox.isSelected();
             boolean isMagicBounded = boundedCheckBox.isSelected();
 
 
-
             AbstractWorldMap foldedMap = new FoldedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
             AbstractWorldMap boundedMap = new BoundedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
 
-            SimulationEngine foldedEngine = new SimulationEngine(foldedMap, isMagicFolded);
-            SimulationEngine boundedEngine = new SimulationEngine(boundedMap, isMagicBounded);
+            SimulationEngine foldedEngine = new SimulationEngine(foldedMap, isMagicFolded, eraLength);
+            SimulationEngine boundedEngine = new SimulationEngine(boundedMap, isMagicBounded, eraLength);
 
-            foldedEngine.run();
-            boundedEngine.run();
             SimulationStage simulationStage = new SimulationStage(foldedEngine, boundedEngine);
 
             simulationStage.showMainStage();
-
         });
 
         HBox hbBtn = new HBox(20);
@@ -205,8 +201,6 @@ public class SettingsStage extends Application {
             return false;
         }
     }
-
-
 
     public  void start(Stage primaryStage) {
         primaryStage.setTitle("Evolution Generator - Initial Settings");

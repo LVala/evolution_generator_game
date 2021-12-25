@@ -63,6 +63,7 @@ public class Genotype {
 
     // METHODS NEEDED TO STORE IN HASHMAP
 
+    @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof Genotype that)) return false;
@@ -70,5 +71,10 @@ public class Genotype {
             if (this.genes[i] != ((Genotype) other).genes[i]) return false;
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(this.genes);
     }
 }

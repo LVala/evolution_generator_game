@@ -17,7 +17,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     protected final Vector2d jungleCorner;  // lower left jungle corner, inclusive
 
     protected final Map<Genotype, Integer> genotypeCounter = new HashMap<>();
-    protected int deadAnimalsNumber = 0; //TODO zaimplementować
+    protected int deadAnimalsNumber = 0;
     protected int plantNumber = 0;
     protected int animalNumber = 0;
     protected int sumEnergy = 0;
@@ -86,6 +86,10 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
     public int getAnimalNumber() {
         return this.animalNumber;
+    }
+
+    public int getPlantNumber() {
+        return this.plantNumber;
     }
 
     public List<Genotype> getMostCommonGenotype() {
@@ -251,21 +255,5 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         this.plants.remove(position);
         this.plantNumber--;
         }
-    }
-
-    // TO STRING
-    // TODO do usuniecia
-    public String toString() {
-        return String.format("""
-                        #############################################
-                        MAP PLANT NUMBER: %d
-                        MAP ANIMAL NUMBER: %d
-                        MAP AVERAGE ENERGY: %d
-                        MAP AVERAGE LIFESPAN: %d
-                        MAP AVERAGE CHILDREN NUMBER: %d
-                        MAP GENOTYPE COUNTER: %s
-                        #################################################
-                        """, plantNumber, animalNumber, this.getAverageEnergy(), this.getAverageLifespan(),
-                this.getAverageChildrenNumber(), this.getMostCommonGenotype());
     }
 }

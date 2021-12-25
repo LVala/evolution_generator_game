@@ -10,7 +10,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 public class AnimalInfoGrid {
-    //TODO to zrobic
     public static final String fontName = "Tahoma";
     public static final int fontSize = 16;
 
@@ -63,7 +62,10 @@ public class AnimalInfoGrid {
         descendantsValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
         this.animalInfoGrid.add(descendantsValue, 1,2);
 
-        Label deathEraValue = new Label(Integer.toString(animal.getDeathEra()));
+        Label deathEraValue;
+        if (animal.getDeathEra() == -1) deathEraValue = new Label("N/A");
+        else deathEraValue = new Label(Integer.toString(animal.getDeathEra()));
+
         deathEraValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
         this.animalInfoGrid.add(deathEraValue, 1,3);
 
