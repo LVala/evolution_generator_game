@@ -10,19 +10,30 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Label;
 
-import java.awt.*;
-
 public class MapElement {
+    private final int width;
+    private final int height;
+    private final int maxEnergy;
 
-    public static StackPane getImage(int width, int height, IMapObject object, int maxEnergy, boolean isJungle) {
-        //TODO optymalizacja
+    private final AnimalInfoGrid animalInfoGrid;
+
+    public MapElement(int width, int height, int maxEnergy, AnimalInfoGrid animalInfoGrid) {
+        this.width = width;
+        this.height  = height;
+        this.maxEnergy = maxEnergy;
+
+        this.animalInfoGrid = animalInfoGrid;
+    }
+
+    public StackPane getImage(IMapObject object, boolean isJungle) {
         StackPane stack = new StackPane();
         stack.setBorder(new Border(new BorderStroke(Color.web("0x000000"),
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.4))));
 
         Rectangle rec = new Rectangle();
-        rec.setHeight(height);
-        rec.setWidth(width);
+        rec.setHeight(this.height);
+        rec.setWidth(this.width);
+
 
         if (object instanceof Plant) {
             rec.setFill(Color.web("0x306e26"));
@@ -30,14 +41,10 @@ public class MapElement {
             return stack;
         }
 
-        if (isJungle) {
-            rec.setFill(Color.web("0x88a464"));
-        }
-        else {
-            rec.setFill(Color.web("0xd8bca4"));
-        }
-
+        if (isJungle) rec.setFill(Color.web("0x88a464"));
+        else rec.setFill(Color.web("0xd8bca4"));
         stack.getChildren().add(rec);
+
         if (object == null) return stack;
 
         Animal animal = (Animal) object;
@@ -55,6 +62,13 @@ public class MapElement {
         circle.setFill(Color.web(color));
         circle.setStroke(Color.web(color));
         stack.getChildren().add(circle);
+
+        stack.setOnMouseClicked(event -> {
+            if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
+            animal.setIfTracked(true);
+            animalInfoGrid.createAnimalInfo(animal);
+            System.out.println("TRACKED ANIMAL: " + animal);
+        });
 
         return stack;
     }
@@ -93,8 +107,8 @@ public class MapElement {
         animalCircle.setFill(Color.web("0xE6050A"));
         animalCircle.setStroke(Color.web("0xE6050A"));
         Label animalLabel = new Label("-  animal (darker = more energy)");
-        legendGrid.add(animalCircle, 6, 0);
-        legendGrid.add(animalLabel, 7, 0);
+        legendGrid.add(animalCircle, 0, 1);
+        legendGrid.add(animalLabel, 1, 1, 5, 1);
 
         return legendGrid;
     }

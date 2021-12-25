@@ -25,6 +25,7 @@ public class SimulationBox {
     private final AnimalInfoGrid animalInfoGrid;
 
     private final boolean isStopped = false;
+    private Animal trackedAnimal; // TODO
 
     public SimulationBox(SimulationEngine simulationEngine) {
 
@@ -38,14 +39,10 @@ public class SimulationBox {
 
         HBox buttons = createButtonsHBox();
 
-        this.mapGrid = new MapGrid(simulationEngine.getMap());
-        this.mapGrid.createMapGrid();
-
-        // TODO to do zmodernizowania
         this.animalInfoGrid = new AnimalInfoGrid();
-        this.animalInfoGrid.createAnimalInfo(new Animal(new Vector2d(1,1), 3, Genotype.generateRandomGenotype(),
-                simulationEngine.getMap(), 0));
 
+        this.mapGrid = new MapGrid(simulationEngine.getMap(), this.animalInfoGrid);
+        this.mapGrid.createMapGrid();
 
         VBox chartAndInfoBox = new VBox();
         chartAndInfoBox.setPadding(new Insets(10, 10, 10, 10));
@@ -96,7 +93,7 @@ public class SimulationBox {
         return buttonHBox;
     }
 
-    private void writeToFileAsCSV() throws IOException{
+    private void writeToFileAsCSV() throws IOException {
         File csvOutputFile = new File("simulation_data_1.csv");
         int j = 2;
         while (csvOutputFile.exists()) {
@@ -107,6 +104,7 @@ public class SimulationBox {
 
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(csvOutputFile)))) {
             writer.println("era,animalNumber,plantNumber,averageEnergy,averageLifespan,averageChildrenNumber");
+
             for (int i = 0; i <= simulationEngine.getEra(); i++) {
                 writer.println(String.join(",", Arrays.stream(new Integer[]{
                         i,

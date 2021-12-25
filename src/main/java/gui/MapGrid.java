@@ -16,8 +16,9 @@ public class MapGrid {
     private final int gridElemWidth;
 
     private final AbstractWorldMap map;
+    private final MapElement mapElement;
 
-    public MapGrid(AbstractWorldMap map) {
+    public MapGrid(AbstractWorldMap map, AnimalInfoGrid animalInfoGrid) {
         this.mapGrid.setAlignment(Pos.TOP_CENTER);
         this.mapGrid.setPadding(new Insets(25, 25, 10, 10));
 
@@ -25,6 +26,7 @@ public class MapGrid {
         this.gridElemWidth = 300/map.width;
 
         this.map = map;
+        this.mapElement = new MapElement(gridElemWidth, gridElemHeight, this.map.startEnergy, animalInfoGrid);
     }
 
     public void createMapGrid() {
@@ -36,14 +38,14 @@ public class MapGrid {
 
                 if (this.map.isOccupiedByAnimal(position, 1)) {
                     Animal animal = this.map.getStrongestAnimalAt(position);
-                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, animal, this.map.startEnergy, this.map.isInJungle(position));
+                    stack = mapElement.getImage(animal, this.map.isInJungle(position));
                 }
                 else if (this.map.isOccupiedByPlant(position)) {
                     Plant plant = this.map.getPlantAt(position);
-                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, plant, this.map.startEnergy, this.map.isInJungle(position));
+                    stack = mapElement.getImage(plant, this.map.isInJungle(position));
                 }
                 else {
-                    stack = MapElement.getImage(gridElemWidth, gridElemHeight, null, this.map.startEnergy, this.map.isInJungle(position));
+                    stack = mapElement.getImage(null, this.map.isInJungle(position));
                 }
                 this.mapGrid.add(stack, j, i);
             }

@@ -41,10 +41,10 @@ public class SettingsStage extends Application {
         // INPUT FIELDS
 
         Label widthLabel = new Label("Map width:");
-        TextField widthTextField = new TextField("50");
+        TextField widthTextField = new TextField("30");
 
         Label heightLabel = new Label("Map height:");
-        TextField heightTextField = new TextField("50");
+        TextField heightTextField = new TextField("30");
 
         Label startEnergyLabel = new Label("Animal start energy:");
         TextField startEnergyTextField = new TextField("100");
@@ -53,7 +53,7 @@ public class SettingsStage extends Application {
         TextField moveEnergyTextField = new TextField("15");
 
         Label plantEnergyLabel = new Label("Plant energy:");
-        TextField plantEnergyTextField = new TextField("35");
+        TextField plantEnergyTextField = new TextField("50");
 
         Label jungleRatioLabel = new Label("Jungle to steppe ratio (double):");
         TextField jungleRatioTextField = new TextField("0.2");

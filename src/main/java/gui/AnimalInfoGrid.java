@@ -15,6 +15,7 @@ public class AnimalInfoGrid {
     public static final int fontSize = 16;
 
     public final GridPane animalInfoGrid = new GridPane();
+    private Animal animal;
 
     public AnimalInfoGrid() {
         this.animalInfoGrid.setAlignment(Pos.TOP_CENTER);
@@ -27,40 +28,47 @@ public class AnimalInfoGrid {
         this.animalInfoGrid.add(mainLabel, 0, 0, 2, 1);
         GridPane.setHalignment(mainLabel, HPos.CENTER);
 
-        Label genotypeLabel = new Label("Genotype:");
-        genotypeLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(genotypeLabel, 0, 1);
-
         Label childrenLabel = new Label("Number of children:");
         childrenLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(childrenLabel, 0, 2);
+        this.animalInfoGrid.add(childrenLabel, 0, 1);
 
         Label descendantsLabel = new Label("Number of descendants:");
         descendantsLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(descendantsLabel, 0, 3);
+        this.animalInfoGrid.add(descendantsLabel, 0, 2);
 
         Label deathEraLabel = new Label("Era of animal death:");
         deathEraLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(deathEraLabel, 0, 4);
+        this.animalInfoGrid.add(deathEraLabel, 0, 3);
+
+        Label genotypeLabel = new Label("Genotype:");
+        genotypeLabel.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        this.animalInfoGrid.add(genotypeLabel, 0, 4, 2, 1);
+    }
+
+    public Animal getAnimal() {
+        return this.animal;
     }
 
     public void createAnimalInfo(Animal animal) {
-        //TODO info o zaznaczonym zwierzu
+        this.animal = animal;
 
-        Label genotypeValue = new Label(animal.getGenotype().toString());
-        genotypeValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(genotypeValue, 1,1);
+        this.animalInfoGrid.getChildren().removeIf(node -> GridPane.getColumnIndex(node) == 1);
+        this.animalInfoGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == 5);
 
         Label childrenValue = new Label(Integer.toString(animal.getTrackedChildrenNumber()));
         childrenValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(childrenValue, 1,2);
+        this.animalInfoGrid.add(childrenValue, 1,1);
 
         Label descendantsValue = new Label(Integer.toString(animal.getTrackedDescendantsNumber()));
         descendantsValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(descendantsValue, 1,3);
+        this.animalInfoGrid.add(descendantsValue, 1,2);
 
         Label deathEraValue = new Label(Integer.toString(animal.getDeathEra()));
         deathEraValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
-        this.animalInfoGrid.add(deathEraValue, 1,4);
+        this.animalInfoGrid.add(deathEraValue, 1,3);
+
+        Label genotypeValue = new Label(animal.getGenotype().toString());
+        genotypeValue.setFont(Font.font(fontName, FontWeight.NORMAL, fontSize));
+        this.animalInfoGrid.add(genotypeValue, 0,5, 2, 1);
     }
 }
