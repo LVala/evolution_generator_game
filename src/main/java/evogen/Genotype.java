@@ -1,7 +1,6 @@
 package evogen;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -11,8 +10,6 @@ public class Genotype {
     private static final int GENES_LENGTH = 32;
 
     public static Genotype generateRandomGenotype() {
-        // generate new Genotype with random genes, static method
-
         int[] new_genes = new int[GENES_LENGTH];
         for (int i = 0; i < GENES_LENGTH; i++) {
             new_genes[i] = new Random().nextInt(UPPER_BOUND) + LOWER_BOUND;
@@ -25,11 +22,8 @@ public class Genotype {
     private final int[] genes;
 
     public Genotype (int[] genes) {
-        // check if there are 32 genes
-
         if (genes.length != GENES_LENGTH) throw new IllegalArgumentException("Invalid genes array: length is not 32");
 
-        // check if all the genes are between 0 and 7
         for (int gene: genes) {
             if (!(gene >= LOWER_BOUND && gene < UPPER_BOUND))
                 throw new IllegalArgumentException("Invalid genes arrays: gene not between 0 and 7");
@@ -38,17 +32,12 @@ public class Genotype {
         this.genes = genes;
     }
 
-    public int[] getGenes() {
-        return this.genes;
-    }
-
+    @Override
     public String toString() {
         return Arrays.stream(this.genes).mapToObj(String::valueOf).collect(Collectors.joining(""));
     }
 
     public int getRandomGene() {
-        // get random gene from genes
-
         int rnd = new Random().nextInt(this.genes.length);
         return this.genes[rnd];
     }
@@ -61,12 +50,10 @@ public class Genotype {
         else return Arrays.copyOfRange(this.genes, sp, this.genes.length);
     }
 
-    // METHODS NEEDED TO STORE IN HASHMAP
-
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof Genotype that)) return false;
+        if (!(other instanceof Genotype)) return false;
         for (int i = 0; i < GENES_LENGTH; i++) {
             if (this.genes[i] != ((Genotype) other).genes[i]) return false;
         }

@@ -1,8 +1,6 @@
 package evogen;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class Animal implements IMapObject {
@@ -22,7 +20,7 @@ public class Animal implements IMapObject {
     private boolean ifTracked = false;
     private Animal trackedAncestor = null;
 
-    // CONSTRUCTOR   // TODO trzeba bedzie wszedzie pododawać komentarze i wyjatki
+    // CONSTRUCTOR
 
     public Animal(Vector2d position, int energy, Genotype genotype, AbstractWorldMap map, int bornEra) {
         this.position = position;
@@ -40,6 +38,10 @@ public class Animal implements IMapObject {
         this.trackedDescendantsNumber = 0;
     }
 
+    public void setDeathEra(int era) {
+        this.deathEra = era;
+    }
+
     public Vector2d getPosition() {
         return this.position;
     }
@@ -50,10 +52,6 @@ public class Animal implements IMapObject {
 
     public Genotype getGenotype() {
         return this.genotype;
-    }
-
-    public void setDeathEra(int era) {
-        this.deathEra = era;
     }
 
     public int getBornEra() {
@@ -81,22 +79,15 @@ public class Animal implements IMapObject {
     public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) {
         this.energy += (plantEnergy/splitBetween);
 
-        map.plantEaten(position);
-        this.map.changeSumEnergy(plantEnergy);
+        map.plantEaten(position); // observer
+        this.map.changeSumEnergy(plantEnergy);  // for stats tracking
     }
 
     public Animal reproduce(Animal other, int bornEra) {
         boolean biggerTakesLeft = new Random().nextBoolean();
 
-        Animal bigger, smaller;
-        if (this.energy >= other.energy) {
-            bigger = this;
-            smaller = other;
-        }
-        else {
-            bigger = other;
-            smaller = this;
-        }
+        Animal bigger = (this.energy >= other.energy) ? this : other;
+        Animal smaller = (this.energy < other.energy) ? this : other;
 
         int[] leftGenes, rightGenes;
         double splitAt;
@@ -121,7 +112,7 @@ public class Animal implements IMapObject {
 
         Animal newAnimal = new Animal(this.position, newEnergy, newGenotype, this.map, bornEra);
 
-        // incrementing children and ancestor counters, setting child's ancestor
+        // stats tracking
 
         this.childrenNumber++;
         other.childrenNumber++;
@@ -155,17 +146,17 @@ public class Animal implements IMapObject {
 
         if (rndGene == 0) {
             this.position = this.map.getMovePosition(this.position, this.orientation);
-            map.animalPositionChanged(this, oldPosition);
+            map.animalPositionChanged(this, oldPosition); // observer
         }
         else if (rndGene == 4) {
             this.position = this.map.getMovePosition(this.position, this.orientation.opposite());
-            map.animalPositionChanged(this, oldPosition);
+            map.animalPositionChanged(this, oldPosition); // observer
         }
         else {
             this.orientation = this.orientation.next(rndGene);
         }
 
-        this.map.changeSumEnergy((-1) * Math.min(moveEnergy, this.energy));
+        this.map.changeSumEnergy((-1) * Math.min(moveEnergy, this.energy)); // stats tracking
         this.energy = Math.max(this.energy - moveEnergy, 0);
     }
 }

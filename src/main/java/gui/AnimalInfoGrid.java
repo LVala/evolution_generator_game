@@ -48,9 +48,11 @@ public class AnimalInfoGrid {
         return this.animal;
     }
 
-    public void createAnimalInfo(Animal animal) {
+    public void setAnimal(Animal animal) {
         this.animal = animal;
+    }
 
+    public void updateAnimalInfo() {
         this.animalInfoGrid.getChildren().removeIf(node -> GridPane.getColumnIndex(node) == 1);
         this.animalInfoGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == 5);
 

@@ -8,8 +8,6 @@ public class FoldedMap extends AbstractWorldMap{
     }
 
     public Vector2d getMovePosition(Vector2d animalPosition, MapDirection direction) {
-        // returns position of animal after its move
-
         Vector2d moveVec = direction.getDirectionVector();
         Vector2d newPos = animalPosition.add(moveVec);
         if (newPos.x >= 0 && newPos.x < this.width && newPos.y >= 0 && newPos.y < this.height) {
@@ -21,6 +19,7 @@ public class FoldedMap extends AbstractWorldMap{
         return new Vector2d(newX, newY);
     }
 
+    @Override
     public String getMapName() {
         return "Folded Map";
     }

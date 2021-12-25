@@ -4,19 +4,17 @@ import gui.SimulationBox;
 import javafx.application.Platform;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SimulationEngine implements IEngine, Runnable{
 
     private final AbstractWorldMap map;
     private SimulationBox simulationGuiBox;
-    private final AtomicBoolean running = new AtomicBoolean(true);
     private final int delay;
     private int era = 0;
     private final boolean ifMagic;
     private int magicClonings = 3;
 
-    public final List<Integer> animals = new LinkedList<>();
+    public final List<Integer> animals = new LinkedList<>();  // stats tracking lists
     public final List<Integer> plants = new LinkedList<>();
     public final List<Integer> energy = new LinkedList<>();
     public final List<Integer> lifespan = new LinkedList<>();
@@ -105,12 +103,13 @@ public class SimulationEngine implements IEngine, Runnable{
     }
 
     private void magicallyCloneAnimals() {
-        List<Animal> toAdd = new ArrayList<>();
+        List<Animal> toAdd = new ArrayList<>();  // to prevent ConcurrentModificationException
 
         for (List<Animal> field : this.map.getAnimals().values()) {
             for (Animal animal : field) {
                 Vector2d newPosition = Vector2d.getRandomVector(this.map.width, this.map.height);
-                // losuję tutaj w nieskończoność, bo albo jest dużo wolnych miejsc(bo 5 zwierzat) albo mała mapa
+
+                // potentially infinite loop, but happens when animals number << map area, so should find free field
                 while (this.map.isOccupied(newPosition)) newPosition = Vector2d.getRandomVector(this.map.width, this.map.height);
                 Animal newAnimal = new Animal(newPosition, this.map.startEnergy, animal.getGenotype(), this.map, this.era);
                 toAdd.add(newAnimal);
@@ -118,7 +117,7 @@ public class SimulationEngine implements IEngine, Runnable{
         }
         for (Animal animal : toAdd) map.placeAnimal(animal, true);
         this.magicClonings--;
-        Platform.runLater(() -> simulationGuiBox.magicSimPopup(this.magicClonings));
+        Platform.runLater(() -> simulationGuiBox.magicSimPopup(this.magicClonings));  // call to show popup in GUI
     }
 
     public void run() {
@@ -129,6 +128,6 @@ public class SimulationEngine implements IEngine, Runnable{
         reproduceAnimals();
         map.placePlants();
         collectStats();
-        Platform.runLater(() -> simulationGuiBox.reloadSimulationBox());
+        Platform.runLater(() -> simulationGuiBox.reloadSimulationBox());  // call to reload GUI
     }
 }

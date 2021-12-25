@@ -50,7 +50,7 @@ public class SettingsStage extends Application {
         TextField startEnergyTextField = new TextField("100");
 
         Label moveEnergyLabel = new Label("Animal move energy:");
-        TextField moveEnergyTextField = new TextField("15");
+        TextField moveEnergyTextField = new TextField("10");
 
         Label plantEnergyLabel = new Label("Plant energy:");
         TextField plantEnergyTextField = new TextField("50");
@@ -110,23 +110,24 @@ public class SettingsStage extends Application {
         btn.setOnAction(event -> {
             for (TextField textField : textFields) {
                 if (textField == jungleRatioTextField) {
-                    if (isNotValid(textField, "[0-9]+\\.[0-9]+")) return;
+                    if (checkIfNumeric(textField, "[0-9]+\\.[0-9]+")) return;
                 }
                 else {
-                    if (isNotValid(textField, "[0-9]+")) return;
+                    if (checkIfNumeric(textField, "[0-9]+")) return;
                 }
             }
 
+            // slight eyesore, but I decided it's still simpler than custom method
             int width = Integer.parseInt(widthTextField.getText());
-            if (width < 10) {
+            if (width < 10 || width > 100) {
                 widthTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                widthTextField.setText("minimum value: 10");
+                widthTextField.setText("value between 10 and 100");
                 return;
             }
             int height = Integer.parseInt(heightTextField.getText());
-            if (height < 10) {
+            if (height < 10 || height > 100) {
                 heightTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                heightTextField.setText("minimum value: 10");
+                heightTextField.setText("value between 10 and 100");
                 return;
             }
             int startEnergy = Integer.parseInt(startEnergyTextField.getText());
@@ -168,7 +169,6 @@ public class SettingsStage extends Application {
             boolean isMagicFolded = foldedCheckBox.isSelected();
             boolean isMagicBounded = boundedCheckBox.isSelected();
 
-
             AbstractWorldMap foldedMap = new FoldedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
             AbstractWorldMap boundedMap = new BoundedMap(width, height, startEnergy, moveEnergy, plantEnergy, jungleRatio, initialAnimals);
 
@@ -188,9 +188,7 @@ public class SettingsStage extends Application {
         return grid;
     }
 
-    public boolean isNotValid(TextField textField, String regex) {
-        // checks if TextField input is valid based on regex
-
+    public boolean checkIfNumeric(TextField textField, String regex) {
         if (!textField.getText().matches(regex)){
             textField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
             textField.setText("invalid input");

@@ -51,11 +51,11 @@ public class MapElement {
         double energyRatio = (double) animal.getEnergy()/maxEnergy;
         String color;
 
-        if (energyRatio < 0.2) color = "0xEDBEBF";
-        else if (energyRatio < 0.4) color = "0xED9597";
-        else if (energyRatio < 0.6) color = "0xEB676A";
-        else if (energyRatio < 0.8) color = "0xE84145";
-        else color = "0xE6050A";
+        if (energyRatio < 0.2) color = "0xffe6e6";
+        else if (energyRatio < 0.4) color = "0xf57878";
+        else if (energyRatio < 0.6) color = "0xff4242";
+        else if (energyRatio < 0.8) color = "0xb50000";
+        else color = "0x570000";
 
         Circle circle = new Circle();
         circle.setRadius(Math.min(height, width) * 0.3);
@@ -66,13 +66,15 @@ public class MapElement {
         stack.setOnMouseClicked(event -> {
             if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
             animal.setIfTracked(true);
-            animalInfoGrid.createAnimalInfo(animal);
+            animalInfoGrid.setAnimal(animal);
+            animalInfoGrid.updateAnimalInfo();
         });
 
         return stack;
     }
 
     public StackPane getHighlightedAnimal(Animal animal, boolean isJungle) {
+        // used for animals with most common genotypes
         StackPane stack = new StackPane();
         stack.setBorder(new Border(new BorderStroke(Color.web("0x000000"),
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.4))));
@@ -94,7 +96,8 @@ public class MapElement {
         stack.setOnMouseClicked(event -> {
             if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
             animal.setIfTracked(true);
-            animalInfoGrid.createAnimalInfo(animal);
+            animalInfoGrid.setAnimal(animal);
+            animalInfoGrid.updateAnimalInfo();
         });
 
         return stack;

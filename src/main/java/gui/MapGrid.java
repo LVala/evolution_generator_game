@@ -26,7 +26,6 @@ public class MapGrid {
     }
 
     public void updateMapGrid() {
-
         for (int i = 0; i < this.map.height; i++) {
             for (int j = 0; j < this.map.width; j++) {
                 Vector2d position = new Vector2d(j, i);

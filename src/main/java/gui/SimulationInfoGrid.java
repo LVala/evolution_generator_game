@@ -1,7 +1,6 @@
 package gui;
 
 import evogen.Genotype;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

@@ -13,8 +13,6 @@ public enum MapDirection {
     NORTH_WEST;
 
     public static MapDirection getRandomDirection() {
-        // returns random MapDirection
-
         MapDirection[] directionList = MapDirection.values();
         int rnd = new Random().nextInt(directionList.length);
         return directionList[rnd];
@@ -28,19 +26,15 @@ public enum MapDirection {
         for (int i = 0; i< directionList.length; i++) {
             if (directionList[i] == this) return directionList[(i+turns)%directionList.length];
         }
-        // this will never occur but intellij throws an error without this return, TODO how to make it nicer
+        // loop above will always return, but IntelliJ asks for this return
         return null;
     }
 
     public MapDirection opposite() {
-        // returns Map Direction opposite to this
-
         return this.next(4);
     }
 
     public Vector2d getDirectionVector() {
-        // returns Vector2d corresponding to current direction
-
         return switch(this) {
             case NORTH -> new Vector2d(0, 1);
             case NORTH_EAST -> new Vector2d(1, 1);

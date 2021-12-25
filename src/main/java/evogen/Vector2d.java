@@ -6,12 +6,13 @@ import java.util.Random;
 public class Vector2d {
 
     public static Vector2d getRandomVector(int width, int height) {
-        // returns random Vector2d bounded by width and height
+        // returns random Vector2d with coords [0-width), [0-height)
 
         int rnd_height = new Random().nextInt(height);
         int rnd_width = new Random().nextInt(width);
         return new Vector2d(rnd_width, rnd_height);
     }
+
 
     public final int x;
     public final int y;
@@ -30,12 +31,6 @@ public class Vector2d {
     public boolean isInside(int startWidth, int endWidth, int startHeight, int endHeight) {
         return (this.x >= startWidth && this.x < endWidth && this.y >= startHeight && this.y < endHeight);
     }
-
-    public String toString() {
-        return String.format("(%d, %d)", x, y);
-    }
-
-    // METHODS NEEDED TO STORE IN HASHMAP
 
     @Override
     public boolean equals(Object other) {

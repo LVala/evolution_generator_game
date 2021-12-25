@@ -8,8 +8,6 @@ public class BoundedMap extends AbstractWorldMap{
     }
 
     public Vector2d getMovePosition(Vector2d animalPosition, MapDirection direction) {
-        // returns position of animal after its move
-
         Vector2d moveVec = direction.getDirectionVector();
         Vector2d newPos = animalPosition.add(moveVec);
         if (newPos.x >= 0 && newPos.x < this.width && newPos.y >= 0 && newPos.y < this.height) {
@@ -18,6 +16,7 @@ public class BoundedMap extends AbstractWorldMap{
         else return animalPosition;
     }
 
+    @Override
     public String getMapName() {
         return "Bounded Map";
     }

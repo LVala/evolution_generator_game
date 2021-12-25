@@ -5,10 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 public class SimulationStage {
     private final SimulationEngine foldedEngine;
     private final SimulationEngine boundedEngine;
@@ -19,6 +15,7 @@ public class SimulationStage {
     }
 
     public void showMainStage() {
+        // main simulation window containing two simulation "boxes"
         Stage mainStage = new Stage();
         mainStage.setTitle("Evolution Generator");
 
@@ -35,6 +32,7 @@ public class SimulationStage {
         mainStage.setScene(scene);
         mainStage.show();
 
+        // make simulation threads shutdown when closing window
         mainStage.setOnCloseRequest(event -> {
             foldedSimulationBox.getExecutor().shutdown();
             boundedSimulationBox.getExecutor().shutdown();

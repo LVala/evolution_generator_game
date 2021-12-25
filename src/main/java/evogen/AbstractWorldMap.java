@@ -42,6 +42,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     private void initializeAnimals(int initialAnimals) { // TODO w tych rzeczach można by na końcu petle, która stawai na pierwszym wolnym  miejscu
         int i = 0;
         int iterator = 0;
+        // trying to get unoccupied spot until success or to (2 * map area) failures (probably filled up map)
         while (i < initialAnimals && iterator < 2 * this.height*this.width) {
             Vector2d rndVector = Vector2d.getRandomVector(this.width, this.height);
             if (this.isOccupiedByAnimal(rndVector, 1)) {
@@ -92,7 +93,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         return this.plantNumber;
     }
 
-    public List<Genotype> getMostCommonGenotype() {
+    public List<Genotype> getMostCommonGenotypes() {
         List<Genotype> mostCommonGenotypes = new ArrayList<>();
         int frequency = 0;
         for (var entry: this.genotypeCounter.entrySet()) {
@@ -109,6 +110,8 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public Animal getStrongestAnimalAt(Vector2d position) {
+        // get ONE of the strongest (most energy) animals on this field
+        if (!this.isOccupiedByAnimal(position, 1)) throw new IllegalArgumentException("No animals on this field");
         Animal strongestAnimal = null;
 
         for (Animal animal : this.animals.get(position)) {
@@ -120,6 +123,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public List<Animal> getStrongestAnimalsAt(Vector2d position) {
+        // get All the strongest (most energy) animals on this field
         if (!this.isOccupiedByAnimal(position, 1)) throw new IllegalArgumentException("No animals on this field");
 
         List<Animal> strongestAnimals = new ArrayList<>();
@@ -138,6 +142,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public Animal[] getTwoStrongestAnimalsAt(Vector2d position) {
+        // get TWO strongest animals (most energy) on this field
         if (!this.isOccupiedByAnimal(position, 2)) throw new IllegalArgumentException("Less than 2 animals on this field");
 
         Animal fstStrongest = null;
@@ -164,7 +169,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         this.sumChildrenNumber += children;
     }
 
-    // IS OCCUPIED
+    // IS OCCUPIED, MISCELLANEOUS
 
     public boolean isOccupiedByPlant(Vector2d position) {
         return this.plants.containsKey(position);
@@ -183,7 +188,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
                 this.jungleCorner.y, this.jungleCorner.y + this.jungleSide);
     }
 
-    // PLACE AND REMOVE OBJECT ON MAP METHODS
+    // PLACE AND REMOVE OBJECT FROM MAP METHODS
 
     public void placeAnimal(Animal animal, boolean firstTime) {
         if (!isOccupiedByAnimal(animal.getPosition(), 1)) {
@@ -191,6 +196,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         }
         this.animals.get(animal.getPosition()).add(animal);
 
+        // stats tracking, only when initially placed, not when moving
         if (firstTime) {
             this.animalNumber++;
             this.sumEnergy += animal.getEnergy();
@@ -204,27 +210,29 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public void placePlants() {
+        // trying to get unoccupied spot until success or to (2 * area) failures (probably filled up area: steppe or jungle)
+
         int iterations = 0;
-        Vector2d rndPosition1 = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
-        while (this.isOccupied(rndPosition1) && iterations < 2 * this.jungleSide * this.jungleSide) {
-            rndPosition1= Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
+        Vector2d rndPositionJungle = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
+        while (this.isOccupied(rndPositionJungle) && iterations < 2 * this.jungleSide * this.jungleSide) {
+            rndPositionJungle= Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
             iterations++;
         }
         if (iterations < this.jungleSide * this.jungleSide) {
-            Plant newPlant = new Plant(rndPosition1, this.plantEnergy);
-            this.plants.put(rndPosition1, newPlant);
+            Plant newPlant = new Plant(rndPositionJungle);
+            this.plants.put(rndPositionJungle, newPlant);
             this.plantNumber++;
         }
 
         iterations = 0;
-        Vector2d rndPosition2 = Vector2d.getRandomVector(width, height);
-        while ((this.isOccupied(rndPosition2) || isInJungle(rndPosition2)) && iterations < 2 * this.width * this.height) {
-            rndPosition2 = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
+        Vector2d rndPositionSteppe = Vector2d.getRandomVector(width, height);
+        while ((this.isOccupied(rndPositionSteppe) || isInJungle(rndPositionSteppe)) && iterations < 2 * this.width * this.height) {
+            rndPositionSteppe = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
             iterations++;
         }
         if (iterations < this.jungleSide * this.jungleSide) {
-            Plant newPlant = new Plant(rndPosition2, this.plantEnergy);
-            this.plants.put(rndPosition2, newPlant);
+            Plant newPlant = new Plant(rndPositionSteppe);
+            this.plants.put(rndPositionSteppe, newPlant);
             this.plantNumber++;
         }
     }
@@ -234,6 +242,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         if (this.animals.get(animal.getPosition()).isEmpty()) this.animals.remove(animal.getPosition());
         animal.setDeathEra(era);
 
+        // stats tracking
         this.deadAnimalsNumber++;
         this.sumLifespan += animal.getDeathEra() - animal.getBornEra();
         this.sumChildrenNumber -= animal.getChildrenNumber();

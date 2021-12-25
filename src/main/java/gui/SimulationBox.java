@@ -20,7 +20,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 public class SimulationBox {
     public static final String fontName = "Tahoma";
 
@@ -32,6 +31,7 @@ public class SimulationBox {
     private final Chart chart;
     private final SimulationInfoGrid simulationInfoGrid;
     private final MapGrid mapGrid;
+    private final AnimalInfoGrid animalInfoGrid;
 
     private boolean isStopped = true;
 
@@ -43,15 +43,17 @@ public class SimulationBox {
 
         this.simulationInfoGrid = new SimulationInfoGrid(simulationEngine.animals, simulationEngine.plants,
                 simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children);
-        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotype());
+        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotypes());
 
+        // left side of the simulation box
         HBox leftButtons = createLeftButtonsHBox();
 
-        AnimalInfoGrid animalInfoGrid = new AnimalInfoGrid();
+        this.animalInfoGrid = new AnimalInfoGrid();
 
         this.mapGrid = new MapGrid(simulationEngine.getMap(), animalInfoGrid);
         this.mapGrid.updateMapGrid();
 
+        // right side of the simulation box
         HBox rightButtons = createRightButtonHBox();
 
         VBox chartAndInfoBox = new VBox();
@@ -70,8 +72,9 @@ public class SimulationBox {
 
     public void reloadSimulationBox() {
         this.chart.updateChart(simulationEngine.getEra());
-        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotype());
+        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotypes());
         this.mapGrid.updateMapGrid();
+        this.animalInfoGrid.updateAnimalInfo();
     }
 
     private HBox createLeftButtonsHBox() {
@@ -84,6 +87,7 @@ public class SimulationBox {
 
         stopStart.setOnAction(event -> {
             if (isStopped) {
+                // using ScheduledExecutorService to run one "simulation era" periodically on new thread
                 this.future = this.executor.scheduleAtFixedRate(this.simulationEngine, 0, this.simulationEngine.getDelay(), TimeUnit.MILLISECONDS);
                 this.isStopped = false;
                 stopStart.setText("STOP");
@@ -128,7 +132,7 @@ public class SimulationBox {
 
         showGeno.setOnAction(event -> {
             if (this.isStopped) {
-                this.mapGrid.highlightMostCommonGenotype(simulationEngine.getMap().getMostCommonGenotype());
+                this.mapGrid.highlightMostCommonGenotype(simulationEngine.getMap().getMostCommonGenotypes());
             }
         });
 
@@ -136,6 +140,8 @@ public class SimulationBox {
     }
 
     public void magicSimPopup(int cloningsLeft) {
+        // popup window when animals are magically cloned
+
         Popup popup = new Popup();
         String mapName = this.simulationEngine.getMap().getMapName();
         Label label = new Label(String.format("Animals on %s were magically cloned! Clonings left: %d", mapName, cloningsLeft));
@@ -147,6 +153,7 @@ public class SimulationBox {
     }
 
     private void writeToFileAsCSV() throws IOException {
+        // searches for free file name
         File csvOutputFile = new File("simulation_data_1.csv");
         int j = 2;
         while (csvOutputFile.exists()) {
@@ -156,7 +163,7 @@ public class SimulationBox {
         if (!csvOutputFile.createNewFile()) throw new IOException();
 
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(csvOutputFile)))) {
-            writer.println("era,animalNumber,plantNumber,averageEnergy,averageLifespan,averageChildrenNumber");
+            writer.println("era,animalNumber,plantNumber,averageEnergy,averageLifespan,averageChildrenNumber");  // csv header
 
             for (int i = 0; i <= simulationEngine.getEra(); i++) {
                 writer.println(String.join(",", Arrays.stream(new Integer[]{
@@ -169,6 +176,7 @@ public class SimulationBox {
                 }).map(String::valueOf).toArray(String[]::new)));
             }
 
+            // average values for the last csv row
             writer.println(String.join(",", Arrays.stream(new Integer[]{
                     -1,
                     getAverage(simulationEngine.animals),
