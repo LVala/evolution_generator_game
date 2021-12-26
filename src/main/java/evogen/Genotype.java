@@ -9,16 +9,6 @@ public class Genotype {
     private static final int UPPER_BOUND = 8;  // exclusive
     private static final int GENES_LENGTH = 32;
 
-    public static Genotype generateRandomGenotype() {
-        int[] new_genes = new int[GENES_LENGTH];
-        for (int i = 0; i < GENES_LENGTH; i++) {
-            new_genes[i] = new Random().nextInt(UPPER_BOUND) + LOWER_BOUND;
-        }
-
-        return new Genotype(new_genes);
-    }
-
-
     private final int[] genes;
 
     public Genotype (int[] genes) {
@@ -32,9 +22,14 @@ public class Genotype {
         this.genes = genes;
     }
 
-    @Override
-    public String toString() {
-        return Arrays.stream(this.genes).mapToObj(String::valueOf).collect(Collectors.joining(""));
+    // static method
+    public static Genotype generateRandomGenotype() {
+        int[] new_genes = new int[GENES_LENGTH];
+        for (int i = 0; i < GENES_LENGTH; i++) {
+            new_genes[i] = new Random().nextInt(UPPER_BOUND) + LOWER_BOUND;
+        }
+
+        return new Genotype(new_genes);
     }
 
     public int getRandomGene() {
@@ -43,11 +38,16 @@ public class Genotype {
     }
 
     public int[] getPartOfGenotype(double splitPoint, boolean takeLeft) {
-        // if takeLft is true, take the left part to the splitPoint inclusive, else right exclusive
-
+        // if takeLft is true, take the left part to the splitPoint inclusive, else right from splitPoint exclusive
         int sp = (int) (splitPoint * GENES_LENGTH);
         if (takeLeft) return Arrays.copyOfRange(this.genes, 0, sp);
         else return Arrays.copyOfRange(this.genes, sp, this.genes.length);
+    }
+
+    @Override
+    public String toString() {
+        // effect looks like "1111222233334444555566667777"
+        return Arrays.stream(this.genes).mapToObj(String::valueOf).collect(Collectors.joining(""));
     }
 
     @Override

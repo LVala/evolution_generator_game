@@ -4,22 +4,21 @@ import java.util.Objects;
 import java.util.Random;
 
 public class Vector2d {
-
-    public static Vector2d getRandomVector(int width, int height) {
-        // returns random Vector2d with coords [0-width), [0-height)
-
-        int rnd_height = new Random().nextInt(height);
-        int rnd_width = new Random().nextInt(width);
-        return new Vector2d(rnd_width, rnd_height);
-    }
-
-
     public final int x;
     public final int y;
 
     public Vector2d(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    // static method
+    public static Vector2d getRandomVector(int width, int height) {
+        // returns random Vector2d with coords [0-width), [0-height)
+
+        int rnd_height = new Random().nextInt(height);
+        int rnd_width = new Random().nextInt(width);
+        return new Vector2d(rnd_width, rnd_height);
     }
 
     public Vector2d add(Vector2d other) {
@@ -29,6 +28,7 @@ public class Vector2d {
     }
 
     public boolean isInside(int startWidth, int endWidth, int startHeight, int endHeight) {
+        // checks if Vector2d is inside rectangle with given coords
         return (this.x >= startWidth && this.x < endWidth && this.y >= startHeight && this.y < endHeight);
     }
 

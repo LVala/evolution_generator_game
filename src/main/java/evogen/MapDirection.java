@@ -12,6 +12,7 @@ public enum MapDirection {
     WEST,
     NORTH_WEST;
 
+    // static method
     public static MapDirection getRandomDirection() {
         MapDirection[] directionList = MapDirection.values();
         int rnd = new Random().nextInt(directionList.length);

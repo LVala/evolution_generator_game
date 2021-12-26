@@ -33,7 +33,7 @@ public class MapGrid {
                 int finalI = i;
                 int finalJ = j;
                 this.mapGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) == finalI && GridPane.getColumnIndex(node) == finalJ);
-                //TODO optymalizacja
+
                 if (this.map.isOccupiedByAnimal(position, 1)) {
                     Animal animal = this.map.getStrongestAnimalAt(position);
                     stack = mapElement.getImage(animal, this.map.isInJungle(position));

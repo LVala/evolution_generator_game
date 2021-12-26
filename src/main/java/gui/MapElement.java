@@ -63,6 +63,7 @@ public class MapElement {
         circle.setStroke(Color.web(color));
         stack.getChildren().add(circle);
 
+        // to display animal info once clicked
         stack.setOnMouseClicked(event -> {
             if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
             animal.setIfTracked(true);
@@ -103,6 +104,7 @@ public class MapElement {
         return stack;
     }
 
+    // static method
     public static GridPane createMapLegend() {
         GridPane legendGrid = new GridPane();
         legendGrid.setHgap(10);

@@ -19,7 +19,6 @@ public class FoldedMap extends AbstractWorldMap{
         return new Vector2d(newX, newY);
     }
 
-    @Override
     public String getMapName() {
         return "Folded Map";
     }

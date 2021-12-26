@@ -39,7 +39,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         initializeAnimals(initialAnimals);
     }
 
-    private void initializeAnimals(int initialAnimals) { // TODO w tych rzeczach można by na końcu petle, która stawai na pierwszym wolnym  miejscu
+    private void initializeAnimals(int initialAnimals) {
         int i = 0;
         int iterator = 0;
         // trying to get unoccupied spot until success or to (2 * map area) failures (probably filled up map)
@@ -238,6 +238,8 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     }
 
     public void removeDeadAnimal(Animal animal, int era) {
+        if (!this.animals.get(animal.getPosition()).contains(animal)) throw new IllegalArgumentException("Animal to remove already removed or missing from it's field");
+
         this.animals.get(animal.getPosition()).remove(animal);
         if (this.animals.get(animal.getPosition()).isEmpty()) this.animals.remove(animal.getPosition());
         animal.setDeathEra(era);

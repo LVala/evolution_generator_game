@@ -77,6 +77,8 @@ public class Animal implements IMapObject {
     // MAP ACTION METHODS
 
     public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) {
+        if (this.map.getPlantAt(position) == null) throw new IllegalArgumentException("No plant on this field");
+
         this.energy += (plantEnergy/splitBetween);
 
         map.plantEaten(position); // observer
@@ -84,6 +86,9 @@ public class Animal implements IMapObject {
     }
 
     public Animal reproduce(Animal other, int bornEra) {
+        if (this.energy < 0.5  * this.map.moveEnergy || other.energy < 0.5  * this.map.moveEnergy)
+            throw new IllegalArgumentException("Not enough energy to reproduce");
+
         boolean biggerTakesLeft = new Random().nextBoolean();
 
         Animal bigger = (this.energy >= other.energy) ? this : other;
@@ -141,6 +146,8 @@ public class Animal implements IMapObject {
     }
 
     public void move(int moveEnergy) {
+        if (!this.map.getAnimals().get(this.position).contains(this)) throw new IllegalStateException("Animals position and it's place on map does not match");
+
         Vector2d oldPosition = this.position;
         int rndGene = this.genotype.getRandomGene();
 

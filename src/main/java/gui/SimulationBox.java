@@ -10,15 +10,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Popup;
-import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class SimulationBox {
     public static final String fontName = "Tahoma";
@@ -26,7 +22,7 @@ public class SimulationBox {
     private final SimulationEngine simulationEngine;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private Future<?> future;
-    private final Stage parentWindow;
+    private final SimulationStage parentStage;
     public final HBox simulationBox = new HBox();
     private final Chart chart;
     private final SimulationInfoGrid simulationInfoGrid;
@@ -35,8 +31,8 @@ public class SimulationBox {
 
     private boolean isStopped = true;
 
-    public SimulationBox(SimulationEngine simulationEngine, Stage parentWindow) {
-        this.parentWindow = parentWindow;
+    public SimulationBox(SimulationEngine simulationEngine, SimulationStage parentStage) {
+        this.parentStage = parentStage;
         this.simulationEngine = simulationEngine;
         this.chart = new Chart(simulationEngine.animals, simulationEngine.plants,
                 simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children, simulationEngine.getMap().getMapName());
@@ -74,7 +70,12 @@ public class SimulationBox {
         this.chart.updateChart(simulationEngine.getEra());
         this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotypes());
         this.mapGrid.updateMapGrid();
-        this.animalInfoGrid.updateAnimalInfo();
+        if (this.animalInfoGrid.getAnimal() != null) this.animalInfoGrid.updateAnimalInfo();
+    }
+
+    // used in handling exceptions in ScheduledExecutorService threads
+    public void terminateExecution() {
+        this.parentStage.terminateExecution();
     }
 
     private HBox createLeftButtonsHBox() {
@@ -87,7 +88,7 @@ public class SimulationBox {
 
         stopStart.setOnAction(event -> {
             if (isStopped) {
-                // using ScheduledExecutorService to run one "simulation era" periodically on new thread
+                // using ScheduledExecutorService to run one "simulation era" periodically on a new thread
                 this.future = this.executor.scheduleAtFixedRate(this.simulationEngine, 0, this.simulationEngine.getDelay(), TimeUnit.MILLISECONDS);
                 this.isStopped = false;
                 stopStart.setText("STOP");
@@ -149,7 +150,7 @@ public class SimulationBox {
         label.setStyle(" -fx-background-color: white; -fx-border-color: black");
         popup.getContent().add(label);
         popup.setAutoHide(true);
-        popup.show(this.parentWindow);
+        popup.show(this.parentStage.getStage());
     }
 
     private void writeToFileAsCSV() throws IOException {

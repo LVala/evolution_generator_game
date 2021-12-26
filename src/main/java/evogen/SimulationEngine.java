@@ -5,7 +5,7 @@ import javafx.application.Platform;
 
 import java.util.*;
 
-public class SimulationEngine implements IEngine, Runnable{
+public class SimulationEngine implements Runnable{
 
     private final AbstractWorldMap map;
     private SimulationBox simulationGuiBox;
@@ -25,8 +25,10 @@ public class SimulationEngine implements IEngine, Runnable{
         this.ifMagic = ifMagic;
         this.delay = delay;
 
-        collectStats();
+        collectStats();  // collecting stats from 0th era
     }
+
+    // SETTERS AND GETTERS
 
     public void setSimulationGuiBox(SimulationBox guiBox) {
         this.simulationGuiBox = guiBox;
@@ -43,6 +45,8 @@ public class SimulationEngine implements IEngine, Runnable{
     public int getDelay() {
         return this.delay;
     }
+
+    // SIMULATION METHODS
 
     private void removeDeadAnimals() {
         List<Animal> toRemove = new ArrayList<>();  // to prevent ConcurrentModificationException
@@ -121,13 +125,19 @@ public class SimulationEngine implements IEngine, Runnable{
     }
 
     public void run() {
-        era++;
-        removeDeadAnimals();
-        moveAnimals();
-        eatPlants();
-        reproduceAnimals();
-        map.placePlants();
-        collectStats();
-        Platform.runLater(() -> simulationGuiBox.reloadSimulationBox());  // call to reload GUI
+        try {
+            era++;
+            removeDeadAnimals();
+            moveAnimals();
+            eatPlants();
+            reproduceAnimals();
+            map.placePlants();
+            collectStats();
+            Platform.runLater(() -> simulationGuiBox.reloadSimulationBox());  // call to reload GUI
+        }
+        catch (IllegalArgumentException | IllegalStateException ex) {
+            System.out.println("Exception caught in simulation thread. Simulation halted\nException: " + ex);
+            Platform.runLater(() -> simulationGuiBox.terminateExecution());  // halts other simulation and closes simulation window
+        }
     }
 }

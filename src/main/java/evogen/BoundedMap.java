@@ -16,7 +16,6 @@ public class BoundedMap extends AbstractWorldMap{
         else return animalPosition;
     }
 
-    @Override
     public String getMapName() {
         return "Bounded Map";
     }
