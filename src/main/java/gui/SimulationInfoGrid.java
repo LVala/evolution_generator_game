@@ -18,14 +18,14 @@ public class SimulationInfoGrid {
 
     public final GridPane simulationInfoGrid = new GridPane();
 
-    private final List<Integer> animals;
-    private final List<Integer> plants;
-    private final List<Integer> energy;
-    private final List<Integer> lifespan;
-    private final List<Integer> children;
+    private final List<Double> animals;
+    private final List<Double> plants;
+    private final List<Double> energy;
+    private final List<Double> lifespan;
+    private final List<Double> children;
 
-    public SimulationInfoGrid(List<Integer> animals, List<Integer> plants, List<Integer> energy,
-                              List<Integer> lifespan, List<Integer> children) {
+    public SimulationInfoGrid(List<Double> animals, List<Double> plants, List<Double> energy,
+                              List<Double> lifespan, List<Double> children) {
         this.simulationInfoGrid.setAlignment(Pos.TOP_CENTER);
         this.simulationInfoGrid.setHgap(20);
         this.simulationInfoGrid.setVgap(10);
@@ -55,25 +55,27 @@ public class SimulationInfoGrid {
         this.simulationInfoGrid.add(curMostCommonGenotype, 0, 6, 2, 1);
     }
 
+    // UPDATE METHOD
+
     public void updateSimulationInfoGrid(int era, List<Genotype> mostCommonGenotypes) {
 
         this.simulationInfoGrid.getChildren().removeIf(node -> GridPane.getColumnIndex(node) == 1);
 
         Label curEraTextValue = new Label(String.format("%d", era));
-        Label curAnimalsTextValue = new Label(String.format("%d", animals.get(animals.size() - 1)));
-        Label curPlantsTextValue = new Label(String.format("%d", plants.get(animals.size() - 1)));
+        Label curAnimalsTextValue = new Label(String.format("%.0f", animals.get(animals.size() - 1)));
+        Label curPlantsTextValue = new Label(String.format("%.0f", plants.get(animals.size() - 1)));
 
         Label curEnergyTextValue;
         if (energy.get(animals.size() - 1) == -1) curEnergyTextValue = new Label("N/A");
-        else curEnergyTextValue = new Label(String.format("%d", energy.get(animals.size() - 1)));
+        else curEnergyTextValue = new Label(String.format("%.2f", energy.get(animals.size() - 1)));
 
         Label curLifespanTextValue;
         if (lifespan.get(animals.size() - 1) == -1) curLifespanTextValue = new Label("N/A");
-        else curLifespanTextValue = new Label(String.format("%d", lifespan.get(animals.size() - 1)));
+        else curLifespanTextValue = new Label(String.format("%.2f", lifespan.get(animals.size() - 1)));
 
         Label curChildrenValue;
         if (children.get(animals.size() - 1) == -1) curChildrenValue = new Label("N/A");
-        else curChildrenValue = new Label(String.format("%d", children.get(animals.size() - 1)));
+        else curChildrenValue = new Label(String.format("%.2f", children.get(animals.size() - 1)));
 
         Label[] values = {curEraTextValue, curAnimalsTextValue, curPlantsTextValue, curEnergyTextValue,
                 curLifespanTextValue, curChildrenValue};
@@ -83,6 +85,7 @@ public class SimulationInfoGrid {
             this.simulationInfoGrid.add(values[i], 1, i);
         }
 
+        // most commons genotypes kept in scrollPane as there may be quite a lot of them
         VBox genotypesBox = new VBox();
         for (Genotype genotype : mostCommonGenotypes) {
             genotypesBox.getChildren().add(new Label(genotype.toString()));

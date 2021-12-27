@@ -14,11 +14,11 @@ public class SimulationEngine implements Runnable{
     private final boolean ifMagic;
     private int magicClonings = 3;
 
-    public final List<Integer> animals = new LinkedList<>();  // stats tracking lists
-    public final List<Integer> plants = new LinkedList<>();
-    public final List<Integer> energy = new LinkedList<>();
-    public final List<Integer> lifespan = new LinkedList<>();
-    public final List<Integer> children = new LinkedList<>();
+    public final List<Double> animals = new ArrayList<>();  // stats tracking lists
+    public final List<Double> plants = new ArrayList<>();  // all kept in Double for the ease of manipulating
+    public final List<Double> energy = new ArrayList<>();  // -1 if data is not available
+    public final List<Double> lifespan = new ArrayList<>();
+    public final List<Double> children = new ArrayList<>();
 
     public SimulationEngine(AbstractWorldMap map, boolean ifMagic, int delay) {
         this.map = map;
@@ -36,10 +36,6 @@ public class SimulationEngine implements Runnable{
 
     public AbstractWorldMap getMap() {
         return this.map;
-    }
-
-    public int getEra() {
-        return this.era;
     }
 
     public int getDelay() {
@@ -98,12 +94,13 @@ public class SimulationEngine implements Runnable{
         }
     }
 
-    private void collectStats() {
+    private int collectStats() {
         this.animals.add(this.map.getAnimalNumber());
         this.plants.add(this.map.getPlantNumber());
         this.energy.add(this.map.getAverageEnergy());
         this.lifespan.add(this.map.getAverageLifespan());
         this.children.add(this.map.getAverageChildrenNumber());
+        return this.animals.size() - 1;
     }
 
     private void magicallyCloneAnimals() {
@@ -132,12 +129,12 @@ public class SimulationEngine implements Runnable{
             eatPlants();
             reproduceAnimals();
             map.placePlants();
-            collectStats();
-            Platform.runLater(() -> simulationGuiBox.reloadSimulationBox());  // call to reload GUI
+            int statsLen = collectStats();
+            Platform.runLater(() -> simulationGuiBox.reloadSimulationBox(statsLen));  // call to reload GUI
         }
         catch (IllegalArgumentException | IllegalStateException ex) {
             System.out.println("Exception caught in simulation thread. Simulation halted\nException: " + ex);
-            Platform.runLater(() -> simulationGuiBox.terminateExecution());  // halts other simulation and closes simulation window
+            Platform.runLater(() -> simulationGuiBox.terminateExecution());  // halts other simulations and closes simulation window
         }
     }
 }

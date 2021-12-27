@@ -25,6 +25,10 @@ public class MapGrid {
         this.mapElement = new MapElement(gridElemWidth, gridElemHeight, this.map.startEnergy, animalInfoGrid);
     }
 
+    // UPDATE METHODS
+
+    // map is de facto drawn upside-down, but IMO it does not make a difference
+    // when it comes to visualization and simplifies the code a lot
     public void updateMapGrid() {
         for (int i = 0; i < this.map.height; i++) {
             for (int j = 0; j < this.map.width; j++) {
@@ -50,6 +54,8 @@ public class MapGrid {
         }
     }
 
+    // highlights only, when the animal is the strongest one on the field
+    // because otherwise it's theoretically not visible, covered by stronger one
     public void highlightMostCommonGenotype(List<Genotype> mostCommonGenotypes) {
         for (int i = 0; i < this.map.height; i++) {
             for (int j = 0; j < this.map.width; j++) {

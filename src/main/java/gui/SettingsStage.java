@@ -40,28 +40,28 @@ public class SettingsStage extends Application {
 
         // INPUT FIELDS
 
-        Label widthLabel = new Label("Map width:");
+        Label widthLabel = new Label("Map width [10-100]:");
         TextField widthTextField = new TextField("30");
 
-        Label heightLabel = new Label("Map height:");
+        Label heightLabel = new Label("Map height [10-100]:");
         TextField heightTextField = new TextField("30");
 
-        Label startEnergyLabel = new Label("Animal start energy:");
-        TextField startEnergyTextField = new TextField("100");
+        Label startEnergyLabel = new Label("Animal start energy [1-10^6]:");
+        TextField startEnergyTextField = new TextField("1000");
 
-        Label moveEnergyLabel = new Label("Animal move energy:");
+        Label moveEnergyLabel = new Label("Animal move energy [1-10^6]:");
         TextField moveEnergyTextField = new TextField("10");
 
-        Label plantEnergyLabel = new Label("Plant energy:");
-        TextField plantEnergyTextField = new TextField("50");
+        Label plantEnergyLabel = new Label("Plant energy [1-10^6]:");
+        TextField plantEnergyTextField = new TextField("200");
 
-        Label jungleRatioLabel = new Label("Jungle to steppe ratio (double):");
+        Label jungleRatioLabel = new Label("Jungle-steppe ratio (double) (0-100]:");
         TextField jungleRatioTextField = new TextField("0.2");
 
-        Label initialAnimalsLabel = new Label("Initial number of animals:");
-        TextField initialAnimalsTextField = new TextField("10");
+        Label initialAnimalsLabel = new Label("Initial number of animals [10-area]:");
+        TextField initialAnimalsTextField = new TextField("100");
 
-        Label eraLengthLabel = new Label("Era real time length (ms):");
+        Label eraLengthLabel = new Label("Era real time length (ms) [100-10^4]:");
         TextField eraLengthTextField = new TextField("500");
 
         Label[] labels = {widthLabel, heightLabel, startEnergyLabel, moveEnergyLabel, plantEnergyLabel,
@@ -108,64 +108,37 @@ public class SettingsStage extends Application {
         // BUTTON ON ACTION AND VALIDATION
 
         btn.setOnAction(event -> {
-            for (TextField textField : textFields) {
-                if (textField == jungleRatioTextField) {
-                    if (checkIfNumeric(textField, "[0-9]+\\.[0-9]+")) return;
-                }
-                else {
-                    if (checkIfNumeric(textField, "[0-9]+")) return;
-                }
-            }
-
-            // slight eyesore, but I decided it's still simpler than custom method
+            if (checkIfValid(widthTextField, "[0-9]+", 10, 100)) return;
             int width = Integer.parseInt(widthTextField.getText());
-            if (width < 10 || width > 100) {
-                widthTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                widthTextField.setText("value between 10 and 100");
-                return;
-            }
+            if (checkIfValid(heightTextField, "[0-9]+", 10, 100)) return;
             int height = Integer.parseInt(heightTextField.getText());
-            if (height < 10 || height > 100) {
-                heightTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                heightTextField.setText("value between 10 and 100");
-                return;
-            }
+            if (checkIfValid(startEnergyTextField, "[0-9]+", 1, 1000000)) return;
             int startEnergy = Integer.parseInt(startEnergyTextField.getText());
-            if (startEnergy < 1) {
-                startEnergyTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                startEnergyTextField.setText("minimum value: 1");
-                return;
-            }
+            if (checkIfValid(moveEnergyTextField, "[0-9]+", 1, 1000000)) return;
             int moveEnergy = Integer.parseInt(moveEnergyTextField.getText());
-            if (moveEnergy < 1) {
-                moveEnergyTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                moveEnergyTextField.setText("minimum value: 1");
-                return;
-            }
+            if (checkIfValid(plantEnergyTextField, "[0-9]+", 1, 1000000)) return;
             int plantEnergy = Integer.parseInt(plantEnergyTextField.getText());
-            if (plantEnergy < 1) {
-                plantEnergyTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                plantEnergyTextField.setText("minimum value: 1");
+            if (checkIfValid(initialAnimalsTextField, "[0-9]+", 10, width * height)) return;
+            int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
+            if (checkIfValid(eraLengthTextField, "[0-9]+", 100, 10000)) return;
+            int eraLength = Integer.parseInt(eraLengthTextField.getText());
+
+            // custom validation for jungleRatio as it's double
+            if (!jungleRatioTextField.getText().matches("([0-9]+\\.[0-9]+)|[0-9]+")){
+                jungleRatioTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+                jungleRatioTextField.setText("invalid input");
                 return;
             }
             double jungleRatio = Double.parseDouble(jungleRatioTextField.getText());
-            if (jungleRatio <= 0) {
+            if (jungleRatio <= 0  || jungleRatio > 100) {
                 jungleRatioTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                jungleRatioTextField.setText("value between 0 and 1 exclusively");
+                jungleRatioTextField.setText("invalid value");
                 return;
             }
-            int initialAnimals = Integer.parseInt(initialAnimalsTextField.getText());
-            if (initialAnimals < 10 && initialAnimals > width * height) {
-                initialAnimalsTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                initialAnimalsTextField.setText("value between 10 and area of the map (height * width)");
-                return;
+            else {
+                jungleRatioTextField.setStyle(null);
             }
-            int eraLength = Integer.parseInt(eraLengthTextField.getText());
-            if (eraLength < 100) {
-                eraLengthTextField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
-                eraLengthTextField.setText("minimum value: 100");
-                return;
-            }
+
             boolean isMagicFolded = foldedCheckBox.isSelected();
             boolean isMagicBounded = boundedCheckBox.isSelected();
 
@@ -188,10 +161,16 @@ public class SettingsStage extends Application {
         return grid;
     }
 
-    public boolean checkIfNumeric(TextField textField, String regex) {
+    public boolean checkIfValid(TextField textField, String regex, int minValue, int maxValue) {
         if (!textField.getText().matches(regex)){
             textField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
             textField.setText("invalid input");
+            return true;
+        }
+        int value =Integer.parseInt(textField.getText());
+        if (value < minValue || value > maxValue) {
+            textField.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+            textField.setText("invalid value");
             return true;
         }
         else {
@@ -199,6 +178,8 @@ public class SettingsStage extends Application {
             return false;
         }
     }
+
+    // STARTUP METHODS
 
     public  void start(Stage primaryStage) {
         primaryStage.setTitle("Evolution Generator - Initial Settings");

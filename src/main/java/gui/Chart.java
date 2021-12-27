@@ -9,11 +9,11 @@ import java.util.List;
 public class Chart {
     private final LineChart<Number, Number> lineChart;
 
-    private final List<Integer> animals;
-    private final List<Integer> plants;
-    private final List<Integer> energy;
-    private final List<Integer> lifespan;
-    private final List<Integer> children;
+    private final List<Double> animals;
+    private final List<Double> plants;
+    private final List<Double> energy;
+    private final List<Double> lifespan;
+    private final List<Double> children;
 
     private final XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
@@ -21,8 +21,8 @@ public class Chart {
     private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
-    public Chart(List<Integer> animals, List<Integer> plants, List<Integer> energy,
-                 List<Integer> lifespan, List<Integer> children, String chartName) {
+    public Chart(List<Double> animals, List<Double> plants, List<Double> energy,
+                 List<Double> lifespan, List<Double> children, String chartName) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Era");
@@ -52,9 +52,13 @@ public class Chart {
         this.lineChart.setCreateSymbols(false);
     }
 
+    // GETTER
+
     public LineChart<Number, Number> getChart() {
         return this.lineChart;
     }
+
+    // UPDATE METHOD
 
     public void updateChart(int era) {
         this.animalSeries.getData().add(new XYChart.Data<>(era, animals.get(era)));

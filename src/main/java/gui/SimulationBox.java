@@ -21,7 +21,7 @@ public class SimulationBox {
 
     private final SimulationEngine simulationEngine;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private Future<?> future;
+    private Future<?> future;  // used with executor to pause the simulation
     private final SimulationStage parentStage;
     public final HBox simulationBox = new HBox();
     private final Chart chart;
@@ -34,24 +34,26 @@ public class SimulationBox {
     public SimulationBox(SimulationEngine simulationEngine, SimulationStage parentStage) {
         this.parentStage = parentStage;
         this.simulationEngine = simulationEngine;
+
+        // left side of the simulation box
         this.chart = new Chart(simulationEngine.animals, simulationEngine.plants,
                 simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children, simulationEngine.getMap().getMapName());
 
         this.simulationInfoGrid = new SimulationInfoGrid(simulationEngine.animals, simulationEngine.plants,
                 simulationEngine.energy, simulationEngine.lifespan, simulationEngine.children);
-        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotypes());
+        this.simulationInfoGrid.updateSimulationInfoGrid(0, simulationEngine.getMap().getMostCommonGenotypes());
 
-        // left side of the simulation box
         HBox leftButtons = createLeftButtonsHBox();
 
+        // right side of the simulation box
         this.animalInfoGrid = new AnimalInfoGrid();
 
         this.mapGrid = new MapGrid(simulationEngine.getMap(), animalInfoGrid);
         this.mapGrid.updateMapGrid();
 
-        // right side of the simulation box
         HBox rightButtons = createRightButtonHBox();
 
+        // connecting left and right sides of simulation boxes
         VBox chartAndInfoBox = new VBox();
         chartAndInfoBox.setPadding(new Insets(10, 10, 10, 10));
         chartAndInfoBox.getChildren().addAll(this.chart.getChart(), this.simulationInfoGrid.simulationInfoGrid, leftButtons);
@@ -62,13 +64,17 @@ public class SimulationBox {
         this.simulationBox.getChildren().addAll(chartAndInfoBox, mapAndAnimalInfoBox);
     }
 
+    // GETTER
+
     public ScheduledExecutorService getExecutor() {
         return this.executor;
     }
 
-    public void reloadSimulationBox() {
-        this.chart.updateChart(simulationEngine.getEra());
-        this.simulationInfoGrid.updateSimulationInfoGrid(simulationEngine.getEra(), simulationEngine.getMap().getMostCommonGenotypes());
+    // RELOAD SIMULATION METHOD
+
+    public void reloadSimulationBox(int era) {
+        this.chart.updateChart(era);
+        this.simulationInfoGrid.updateSimulationInfoGrid(era, simulationEngine.getMap().getMostCommonGenotypes());
         this.mapGrid.updateMapGrid();
         if (this.animalInfoGrid.getAnimal() != null) this.animalInfoGrid.updateAnimalInfo();
     }
@@ -77,6 +83,8 @@ public class SimulationBox {
     public void terminateExecution() {
         this.parentStage.terminateExecution();
     }
+
+    // BUTTON CREATING METHODS
 
     private HBox createLeftButtonsHBox() {
         Button stopStart = new Button("START");
@@ -126,7 +134,7 @@ public class SimulationBox {
         Button showGeno = new Button("Show most common genotype");
 
         showGeno.setFont(Font.font(fontName, FontWeight.NORMAL, 22));
-        showGeno.setPrefSize(400,45);
+        showGeno.setPrefSize(350,45);
         HBox hbButton = new HBox(30);
         hbButton.setAlignment(Pos.CENTER);
         hbButton.getChildren().add(showGeno);
@@ -140,9 +148,9 @@ public class SimulationBox {
         return hbButton;
     }
 
-    public void magicSimPopup(int cloningsLeft) {
-        // popup window when animals are magically cloned
+    // POPUP FOR "MAGIC CLONING"
 
+    public void magicSimPopup(int cloningsLeft) {
         Popup popup = new Popup();
         String mapName = this.simulationEngine.getMap().getMapName();
         Label label = new Label(String.format("Animals on %s were magically cloned! Clonings left: %d", mapName, cloningsLeft));
@@ -152,6 +160,8 @@ public class SimulationBox {
         popup.setAutoHide(true);
         popup.show(this.parentStage.getStage());
     }
+
+    // TO CSV METHODS AND IT'S UTILS
 
     private void writeToFileAsCSV() throws IOException {
         // searches for free file name
@@ -164,11 +174,10 @@ public class SimulationBox {
         if (!csvOutputFile.createNewFile()) throw new IOException();
 
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(csvOutputFile)))) {
-            writer.println("era,animalNumber,plantNumber,averageEnergy,averageLifespan,averageChildrenNumber");  // csv header
+            writer.println("animalsNumber,plantsNumber,averageEnergy,averageLifespan,averageChildrenNumber");  // csv header
 
-            for (int i = 0; i <= simulationEngine.getEra(); i++) {
-                writer.println(String.join(",", Arrays.stream(new Integer[]{
-                        i,
+            for (int i = 0; i < simulationEngine.animals.size(); i++) {
+                writer.println(String.join(",", Arrays.stream(new Double[]{
                         simulationEngine.animals.get(i),
                         simulationEngine.plants.get(i),
                         simulationEngine.energy.get(i),
@@ -178,8 +187,8 @@ public class SimulationBox {
             }
 
             // average values for the last csv row
-            writer.println(String.join(",", Arrays.stream(new Integer[]{
-                    -1,
+            // unavailable data (-1) is not used in averages
+            writer.println(String.join(",", Arrays.stream(new Double[]{
                     getAverage(simulationEngine.animals),
                     getAverage(simulationEngine.plants),
                     getAverage(simulationEngine.energy),
@@ -189,7 +198,7 @@ public class SimulationBox {
         }
     }
 
-    private int getAverage(List<Integer> data) {
-        return (int) data.stream().filter((a) -> a != -1).mapToDouble(d -> d).average().orElse(0.0);
+    private double getAverage(List<Double> data) {
+        return data.stream().filter((a) -> a != -1).mapToDouble(d -> d).average().orElse(0.0);
     }
 }

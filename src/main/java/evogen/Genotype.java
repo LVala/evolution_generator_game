@@ -18,6 +18,7 @@ public class Genotype {
             if (!(gene >= LOWER_BOUND && gene < UPPER_BOUND))
                 throw new IllegalArgumentException("Invalid genes arrays: gene not between 0 and 7");
         }
+
         Arrays.sort(genes);
         this.genes = genes;
     }

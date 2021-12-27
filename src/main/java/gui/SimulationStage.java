@@ -37,11 +37,11 @@ public class SimulationStage {
         HBox mainHBox = new HBox(10);
         mainHBox.getChildren().addAll(this.foldedSimulationBox.simulationBox, this.boundedSimulationBox.simulationBox);
 
-        Scene scene = new Scene(mainHBox, 1500, 750);
+        Scene scene = new Scene(mainHBox, 1500, 800);
         this.mainStage.setScene(scene);
         this.mainStage.show();
 
-        // make simulation threads shutdown when closing window
+        // make simulation threads shutdown when closing the window
         mainStage.setOnCloseRequest(event -> {
             foldedSimulationBox.getExecutor().shutdown();
             boundedSimulationBox.getExecutor().shutdown();

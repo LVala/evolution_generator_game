@@ -14,9 +14,9 @@ public class Animal implements IMapObject {
     private int deathEra = -1;
 
     private int childrenNumber = 0;
-    private int trackedChildrenNumber = 0;
-    private int trackedDescendantsNumber = 0;
 
+    private int trackedChildrenNumber = 0;  // used when animal is clicked on in gui
+    private int trackedDescendantsNumber = 0;
     private boolean ifTracked = false;
     private Animal trackedAncestor = null;
 
@@ -34,7 +34,7 @@ public class Animal implements IMapObject {
 
     public void setIfTracked(boolean ifTracked) {
         this.ifTracked = ifTracked;
-        this.trackedChildrenNumber = 0;
+        this.trackedChildrenNumber = 0;  // reset when clicked on, even if it's the same animal
         this.trackedDescendantsNumber = 0;
     }
 
@@ -77,8 +77,6 @@ public class Animal implements IMapObject {
     // MAP ACTION METHODS
 
     public void eatPlant(Vector2d position, int plantEnergy, int splitBetween) {
-        if (this.map.getPlantAt(position) == null) throw new IllegalArgumentException("No plant on this field");
-
         this.energy += (plantEnergy/splitBetween);
 
         map.plantEaten(position); // observer

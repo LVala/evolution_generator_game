@@ -44,6 +44,8 @@ public class AnimalInfoGrid {
         this.animalInfoGrid.add(genotypeLabel, 0, 4, 2, 1);
     }
 
+    // GETTERS AND SETTERS
+
     public Animal getAnimal() {
         return this.animal;
     }
@@ -51,6 +53,8 @@ public class AnimalInfoGrid {
     public void setAnimal(Animal animal) {
         this.animal = animal;
     }
+
+    // UPDATE METHOD
 
     public void updateAnimalInfo() {
         this.animalInfoGrid.getChildren().removeIf(node -> GridPane.getColumnIndex(node) == 1);

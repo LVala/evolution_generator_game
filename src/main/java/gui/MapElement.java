@@ -95,6 +95,8 @@ public class MapElement {
         stack.getChildren().add(circle);
 
         stack.setOnMouseClicked(event -> {
+            // tracking starts from the moment animal is being clicked
+            // so information about its children from before is not shown
             if (animalInfoGrid.getAnimal() != null) animalInfoGrid.getAnimal().setIfTracked(false);
             animal.setIfTracked(true);
             animalInfoGrid.setAnimal(animal);

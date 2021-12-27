@@ -33,6 +33,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         this.startEnergy = startEnergy;
         this.moveEnergy = moveEnergy;
         this.plantEnergy = plantEnergy;
+        // jungle always wants to be square, so with some ration and size parameters it may not fit on map, then only it's part is visible in GUI
         this.jungleSide = (int) Math.round(Math.sqrt((jungleRatio / (1 + jungleRatio)) * (this.width * this.height)));
         this.jungleCorner = new Vector2d(((this.width - this.jungleSide)/2), ((this.height - this.jungleSide)/2));
 
@@ -54,6 +55,22 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
             placeAnimal(rndAnimal, true);
             i++;
         }
+        // if above loop was not able to find free position, this one fills map up with the remaining animals
+        // so always there is initialAnimals number of animals on map at the beginning
+        if (i < initialAnimals) {
+            for (int k = 0; k < this.width; k++) {
+                for (int m = 0; m < this.height; m++) {
+                    if (i == initialAnimals) return;
+                    Vector2d newPosition = new Vector2d(k, m);
+                    if (!isOccupiedByAnimal(newPosition, 1)) {
+                        Genotype rndGenotype = Genotype.generateRandomGenotype();
+                        Animal rndAnimal = new Animal(newPosition, startEnergy, rndGenotype, this, 0);
+                        placeAnimal(rndAnimal, true);
+                        i++;
+                    }
+                }
+            }
+        }
     }
 
     // GETTERS AND SETTERS
@@ -70,26 +87,26 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
         return this.plants.get(position);
     }
 
-    public int getAverageLifespan() {
+    public double getAverageLifespan() {
         if (this.deadAnimalsNumber == 0) return -1;
-        return this.sumLifespan/this.deadAnimalsNumber;
+        return (double) this.sumLifespan/this.deadAnimalsNumber;
     }
 
-    public int getAverageEnergy() {
+    public double getAverageEnergy() {
         if (this.animalNumber == 0) return -1;
-        return this.sumEnergy/this.animalNumber;
+        return (double) this.sumEnergy/this.animalNumber;
     }
 
-    public int getAverageChildrenNumber() {
+    public double getAverageChildrenNumber() {
         if (this.animalNumber == 0) return -1;
-        return this.sumChildrenNumber/this.animalNumber;
+        return (double) this.sumChildrenNumber/this.animalNumber;
     }
 
-    public int getAnimalNumber() {
+    public double getAnimalNumber() {
         return this.animalNumber;
     }
 
-    public int getPlantNumber() {
+    public double getPlantNumber() {
         return this.plantNumber;
     }
 
@@ -211,7 +228,7 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
 
     public void placePlants() {
         // trying to get unoccupied spot until success or to (2 * area) failures (probably filled up area: steppe or jungle)
-
+        // otherwise no plant is spawned, could be solved in similar way initializeMap is, but I don't think there's need to
         int iterations = 0;
         Vector2d rndPositionJungle = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
         while (this.isOccupied(rndPositionJungle) && iterations < 2 * this.jungleSide * this.jungleSide) {

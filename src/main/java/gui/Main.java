@@ -2,6 +2,10 @@ package gui;
 
 public class Main {
 
+    // Projekt nr1 na Programowanie Obiektowe - Generator ewolucyjny
+    // informatyka WIET AGH 2021/22
+    // autor: Lukasz Wala
+
     // made using Gradle 7.3.1 and Java 17
 
     // without this artificial main class JavaFX

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MapTest {
     @Test
     public void placeAnimalTest() {
-        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,10);
+        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,0);
         Animal testAnimal1 = new Animal(new Vector2d(2,2), 100, Genotype.generateRandomGenotype(), testFoldedMap, 0);
         Animal testAnimal2 = new Animal(new Vector2d(4,4), 100, Genotype.generateRandomGenotype(), testFoldedMap, 1);
 
@@ -21,20 +21,12 @@ public class MapTest {
 
     @Test
     public void removeDeadAnimalTest() {
-        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,10);
+        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,0);
         Animal testAnimal1 = new Animal(new Vector2d(2,2), 100, Genotype.generateRandomGenotype(), testFoldedMap, 0);
 
         testFoldedMap.placeAnimal(testAnimal1, true);
         testFoldedMap.removeDeadAnimal(testAnimal1, 3);
         assertNull(testFoldedMap.getAnimals().get(new Vector2d(2, 2)));
-    }
-
-    @Test
-    public void placePlantsTest() {
-        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,10);
-
-        testFoldedMap.placePlants();
-        assertEquals(testFoldedMap.plants.size(), 2);
     }
 
     @Test
@@ -75,27 +67,8 @@ public class MapTest {
     }
 
     @Test
-    public void statsCollectingTest() {
-        AbstractWorldMap testBoundedMap = new BoundedMap(30,30,100,15,50,0.2,0);
-        Animal testAnimal3 = new Animal(new Vector2d(2,2), 100, Genotype.generateRandomGenotype(), testBoundedMap, 0);
-        Animal testAnimal4 = new Animal(new Vector2d(2,2), 110, Genotype.generateRandomGenotype(), testBoundedMap, 1);
-
-        testBoundedMap.placeAnimal(testAnimal3, true);
-        testBoundedMap.placeAnimal(testAnimal4, true);
-        System.out.println(testBoundedMap.getAnimalNumber());
-        assertEquals(testBoundedMap.getAnimalNumber(), 2);
-        assertEquals(testBoundedMap.getPlantNumber(), 0);
-        assertEquals(testBoundedMap.getAverageEnergy(), 105);
-        testBoundedMap.removeDeadAnimal(testAnimal3, 3);
-        assertEquals(testBoundedMap.getAverageLifespan(), 3);
-        testBoundedMap.placeAnimal(testAnimal3.reproduce(testAnimal4, 3), true);
-        testBoundedMap.placeAnimal(testAnimal4.reproduce(testAnimal3, 4), true);
-        assertEquals(testBoundedMap.getAverageChildrenNumber(), 1);
-    }
-
-    @Test
     public void getMovePositionFoldedTest() {
-        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,10);
+        AbstractWorldMap testFoldedMap = new FoldedMap(30,30,100,15,50,0.2,0);
 
         assertEquals(testFoldedMap.getMovePosition(new Vector2d(0,0), MapDirection.SOUTH_WEST), new Vector2d(29,29));
         assertEquals(testFoldedMap.getMovePosition(new Vector2d(25, 0), MapDirection.SOUTH_EAST), new Vector2d(26, 29));
