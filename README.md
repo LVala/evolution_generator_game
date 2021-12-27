@@ -5,7 +5,7 @@ w semestrze zimowym 2021/22.
 
 Autor: Łukasz Wala
 
-Demo: https://www.youtube.com/watch?v=r-MetNqjMD0&ab_channel=Dubliou
+[Wideo demonstracyjne](https://www.youtube.com/watch?v=r-MetNqjMD0&ab_channel=Dubliou)
 
 [Oryginalne repozytorium projektu](https://github.com/apohllo/obiektowe-lab/tree/master/proj1)
 
