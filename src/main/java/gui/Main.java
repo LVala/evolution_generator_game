@@ -1,5 +1,7 @@
 package gui;
 
+import javafx.application.Platform;
+
 public class Main {
 
     // Projekt nr1 na Programowanie Obiektowe - Generator ewolucyjny

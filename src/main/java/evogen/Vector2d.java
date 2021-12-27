@@ -28,6 +28,7 @@ public class Vector2d {
     }
 
     public boolean isInside(int startWidth, int endWidth, int startHeight, int endHeight) {
+        if (startWidth > endWidth || startHeight > endHeight) throw new IllegalArgumentException("Invalid coordinates to check");
         // checks if Vector2d is inside rectangle with given coords
         return (this.x >= startWidth && this.x < endWidth && this.y >= startHeight && this.y < endHeight);
     }

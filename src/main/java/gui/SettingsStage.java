@@ -5,6 +5,7 @@ import evogen.BoundedMap;
 import evogen.FoldedMap;
 import evogen.SimulationEngine;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -187,6 +188,13 @@ public class SettingsStage extends Application {
         GridPane grid = createInputGrid();
         Scene scene = new Scene(grid, 500, 650);
         primaryStage.setScene(scene);
+
+        // exception handling on GUI thread
+        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
+            System.out.println("Exception caught in GUI thread. GUI shut down\nException: "+throwable.getMessage());
+            Platform.exit();
+        });
+
         primaryStage.show();
     }
 

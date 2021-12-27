@@ -229,25 +229,27 @@ abstract public class AbstractWorldMap implements IMapActionObserver {
     public void placePlants() {
         // trying to get unoccupied spot until success or to (2 * area) failures (probably filled up area: steppe or jungle)
         // otherwise no plant is spawned, could be solved in similar way initializeMap is, but I don't think there's need to
-        int iterations = 0;
-        Vector2d rndPositionJungle = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
-        while (this.isOccupied(rndPositionJungle) && iterations < 2 * this.jungleSide * this.jungleSide) {
-            rndPositionJungle= Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
-            iterations++;
-        }
-        if (iterations < this.jungleSide * this.jungleSide) {
-            Plant newPlant = new Plant(rndPositionJungle);
-            this.plants.put(rndPositionJungle, newPlant);
-            this.plantNumber++;
+        if (this.jungleSide > 0) {
+            int iterations = 0;
+            Vector2d rndPositionJungle = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
+            while (this.isOccupied(rndPositionJungle) && iterations < 2 * this.jungleSide * this.jungleSide) {
+                rndPositionJungle = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
+                iterations++;
+            }
+            if (iterations < this.jungleSide * this.jungleSide) {
+                Plant newPlant = new Plant(rndPositionJungle);
+                this.plants.put(rndPositionJungle, newPlant);
+                this.plantNumber++;
+            }
         }
 
-        iterations = 0;
+        int iterations = 0;
         Vector2d rndPositionSteppe = Vector2d.getRandomVector(width, height);
         while ((this.isOccupied(rndPositionSteppe) || isInJungle(rndPositionSteppe)) && iterations < 2 * this.width * this.height) {
-            rndPositionSteppe = Vector2d.getRandomVector(jungleSide, jungleSide).add(this.jungleCorner);
+            rndPositionSteppe = Vector2d.getRandomVector(width, height);
             iterations++;
         }
-        if (iterations < this.jungleSide * this.jungleSide) {
+        if (iterations < this.width * this.height) {
             Plant newPlant = new Plant(rndPositionSteppe);
             this.plants.put(rndPositionSteppe, newPlant);
             this.plantNumber++;
